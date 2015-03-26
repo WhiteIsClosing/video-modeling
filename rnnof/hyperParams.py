@@ -1,5 +1,5 @@
 # User configurations:
-data_root = 'data/bouncing_balls/1balls/' 
+data_root = '../data/bouncing_balls/1balls/' 
 image_suffix = '.jpeg'
 image_shape = (16, 16) # single channel images
 trainframes = 5000
