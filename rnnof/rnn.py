@@ -12,7 +12,6 @@ class rnn(object):
         dimh :: dimension of the hidden layer
         dimx :: dimension of the input
         dimy :: dimension of output
-        # maxT :: length of sequence
         '''
         # parameters of the model
         self.Wx  = theano.shared(0.2 * numpy.random.uniform(-1.0, 1.0,\

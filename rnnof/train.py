@@ -27,16 +27,19 @@ models_root = 'models/'
 train_features_numpy, test_features_numpy, numtrain, numtest, \
 data_mean, data_std = loadFromImg()
 # train_features_theano = theano.shared(train_features_numpy)
-train_rawframes = \
-numpy.reshape(train_features_numpy, (trainframes, frame_len))
-test_rawframes = \
-numpy.reshape(test_features_numpy, (testframes, frame_len))
 
 train_ofx, train_ofy, test_ofx,  test_ofy = loadOpticalFlow()
-train_labels = numpy.reshape( \
-numpy.concatenate((train_ofx, train_ofy), axis = 1), (trainframes, frame_len*2))
-test_labels = numpy.reshape( \
-numpy.concatenate((test_ofx, test_ofy), axis = 1), (testframes, frame_len*2))
+train_labels = numpy.concatenate((train_ofx, train_ofy), axis = 1)
+test_labels = numpy.concatenate((test_ofx, test_ofy), axis = 1)
+
+# RESHAPE
+# train_rawframes = \
+# numpy.reshape(train_features_numpy, (trainframes, frame_len))
+# test_rawframes = \
+# numpy.reshape(test_features_numpy, (testframes, frame_len))
+# 
+# train_labels = numpy.reshape(train_labels, (trainframes, frame_len*2))
+# test_labels = numpy.reshape(test_labels, (testframes, frame_len*2))
 
 print 'shapes of data: '
 print train_rawframes.shape
@@ -58,6 +61,8 @@ while (1):
 
   if (epoch % save_epoch == 0):
     model.save(models_root + 'model_' + str(epoch))
+
+
 
 
 
