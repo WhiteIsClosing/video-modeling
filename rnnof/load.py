@@ -113,6 +113,21 @@ def loadOpticalFlow():
   test_ofx = numpy.reshape(test_ofx, (numtest, frame_len * numframes)).astype('float32')
   test_ofy = numpy.reshape(test_ofy, (numtest, frame_len * numframes)).astype('float32')
 
+  # Normalize
+  ofx_mean = train_ofx.mean()
+  ofx_std = train_ofx.std()
+  train_ofx -= ofx_mean
+  train_ofx /= ofx_std
+  test_ofx -= ofx_mean
+  test_ofx /= ofx_std
+
+  ofy_mean = train_ofy.mean()
+  ofy_std = train_ofy.std()
+  train_ofy -= ofy_mean
+  train_ofy /= ofy_std
+  test_ofy -= ofy_mean
+  test_ofy /= ofy_std
+
   # train_ofx = numpy.zeros((numtrain, frame_len * numframes)).astype('float32')
   # train_ofy = numpy.zeros((numtrain, frame_len * numframes)).astype('float32')
   # test_ofx = numpy.zeros((numtest, frame_len * numframes)).astype('float32')

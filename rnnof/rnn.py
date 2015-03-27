@@ -35,22 +35,18 @@ class rnn(object):
 
         def recurrence(x_t, h_tm1):
             h_t = T.nnet.sigmoid(T.dot(x_t, self.Wx) + T.dot(h_tm1, self.Wh) + self.bh)
-            s_t = T.nnet.softmax(T.dot(h_t, self.W) + self.b)
+            # s_t = T.nnet.softmax(T.dot(h_t, self.W) + self.b)
+            s_t = T.dot(h_t, self.W) + self.b
             return [h_t, s_t]
 
         [h, s], _ = theano.scan(fn=recurrence, \
             sequences=x, outputs_info=[self.h0, None], \
             n_steps=x.shape[0])
 
-        # p_y_given_x_lastword = s[-1,0,:]
-        # p_y_given_x_sentence = s[:,0,:]
-        # y_pred = T.argmax(p_y_given_x_sentence, axis=1)
-
         cost = T.mean((y[1:, :] - s[1:, :]) ** 2)
 
         # cost and gradients and learning rate
         lr = T.scalar('lr') # learning rate
-        # nll = -T.mean(T.log(p_y_given_x_lastword)[y])
         gradients = T.grad( cost, self.params )
         updates = OrderedDict(( p, p-lr*g ) for p, g in zip( self.params , gradients))
         
@@ -64,10 +60,6 @@ class rnn(object):
         # self.normalize = theano.function( inputs = [],
         #                  updates = {self.emb:\
         #                  self.emb/T.sqrt((self.emb**2).sum(axis=1)).dimshuffle(0,'x')})
-
-    # def save(self, folder):   
-    #     for param, name in zip(self.params, self.names):
-    #         numpy.save(os.path.join(folder, name + '.npy'), param.get_value())
 
     def updateparams(self, newparams):
         def inplaceupdate(x, new):
