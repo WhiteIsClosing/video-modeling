@@ -28,65 +28,53 @@ class rnn(object):
         self.params = [self.Wx, self.Wh, self.W, self.bh, self.b, self.h0 ]
         self.names  = ['Wx', 'Wh', 'W', 'bh', 'b', 'h0']
 
-        self.inframes = T.matrix(name='inframes') 
-        self.truth = T.matrix(name='truth') 
+        input_frames = T.matrix(name='input_frames') 
+        groud_truth = T.matrix(name='groud_truth') 
 
-        # batch_size = self.inframes.shape[0]
-        # length = self.inframes.shape[1] / dimx
+        # batch_size = input_frames.shape[0]
+        # length = input_frames.shape[1] / dimx
 
-        self.x = [None] * batch_size
-        self.d = [None] * batch_size
+        x = [None] * batch_size
+        d = [None] * batch_size
 
         for idx in range(batch_size):
-          self.x[idx] = self.inframes[idx, :].reshape((length, dimx))
-          self.d[idx] = self.truth[idx, :].reshape((length, dimy))
+          x[idx] = input_frames[idx, :].reshape((length, dimx))
+          d[idx] = groud_truth[idx, :].reshape((length, dimy))
         
+        output_frames = theano.shared(value = 0.0*numpy.ones((batch_size, dimy * length), \
+                          dtype=theano.config.floatX), name='output_frames')
+
 
         def recurrence(x_t, h_tm1):
           h_t = T.nnet.sigmoid(T.dot(x_t, self.Wx) + T.dot(h_tm1, self.Wh) + self.bh)
-          # s_t = T.nnet.softmax(T.dot(h_t, self.W) + self.b)
-          s_t = T.dot(h_t, self.W) + self.b
+          s_t = T.nnet.softmax(T.dot(h_t, self.W) + self.b)
           return [h_t, s_t]
         
-        self.h = [None] * batch_size
-        self.s = [None] * batch_size
+        h = [None] * batch_size
+        s = [None] * batch_size
 
         for idx in range(batch_size):
-          [self.h[idx], self.s[idx]], _ = theano.scan(fn=recurrence, \
-              sequences=self.x[idx], outputs_info=[self.h0, None], \
-              n_steps=length)
+          [h[idx], s[idx]], _ = theano.scan(fn=recurrence, \
+              sequences=x[idx], outputs_info=[self.h0, None], \
+              n_steps=batch_size)
 
-        self.outframes = T.concatenate([self.s[idx].reshape((1, dimy * length)) \
+        preds = T.concatenate([s[idx].reshape((1, idx * length)) \
                 for idx in range(batch_size)], axis = 0)
 
 
-        self.cost = T.mean((self.truth - self.outframes) ** 2)
+        cost = T.mean((groud_truth - preds) ** 2)
 
-        # cost and grads and learning rate
-        self.lr = T.scalar('lr') # learning rate
-        self.grads = T.grad( self.cost, self.params )
-        updates = OrderedDict(( p, p-self.lr*g ) for p, g in zip( self.params , self.grads))
+        # cost and gradients and learning rate
+        lr = T.scalar('lr') # learning rate
+        gradients = T.grad( cost, self.params )
+        updates = OrderedDict(( p, p-lr*g ) for p, g in zip( self.params , gradients))
         
         # theano functions
-        self.predict = theano.function(inputs = [self.inframes], outputs=self.outframes)
+        predict = theano.function(inputs=[input_frames], outputs=preds)
 
-        self.train = theano.function( inputs  = [self.inframes, self.truth, self.lr],
-                                      outputs = self.cost,
+        self.train = theano.function( inputs  = [input_frames, groud_truth, lr],
+                                      outputs = cost,
                                       updates = updates )
-
-        # self.getX = theano.function(inputs = [self.inframes], \
-        #               outputs = self.x)
-        # self.getD = theano.function(inputs = [self.truth], \
-        #               outputs = self.d)
-        # self.getH = theano.function(inputs = [self.inframes], \
-        #               outputs = self.h)
-        # self.getS = theano.function(inputs = [self.inframes], \
-        #                 outputs = self.s)
-        # self.getGrads = theano.function(inputs = [self.inframes, self.truth], \
-        #                       outputs = self.grads)
-        # self.getCost = theano.function(inputs = [self.inframes, self.truth], \
-        #                 outputs = self.cost)
-                             
 
     def updateparams(self, newparams):
         def inplaceupdate(x, new):

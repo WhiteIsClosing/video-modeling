@@ -18,7 +18,7 @@ random.seed(423)
 seed = 42
 
 # HYPER PARAMETERS 
-lr = 1e3 # learning rate
+lr = 1e-2 # learning rate
 save_epoch = 100
 models_root = 'models/'
 batch_size = 2
@@ -69,7 +69,7 @@ frame[(numtrain-1)*numframes]   ...   frame[]
 epoch = 0
 while (1):
   # shuffle([train_features_numpy, train_labels], seed)
-  for i in xrange(numtrain):
+  for i in xrange(numtrain/batch_size):
     cost = model.train(train_rawframes[i*batch_size:(i+1)*batch_size, :], train_labels[i*batch_size:(i+1)*batch_size, :], lr)
   print '# epoch: ' + str(epoch) + '\tcost: ' + str(cost)
   epoch += 1

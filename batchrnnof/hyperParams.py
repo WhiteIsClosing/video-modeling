@@ -11,3 +11,11 @@ frame_len = image_shape[0] * image_shape[1] # single channel images
 seq_len = frame_len * numframes
 
 features_root = 'features/'
+
+
+# MODEL PARAMETERS 
+lr = 1e-4 # learning rate
+save_epoch = 100
+models_root = 'models/'
+batch_size = 100
+hidden_size = 50

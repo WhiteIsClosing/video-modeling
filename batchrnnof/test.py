@@ -18,7 +18,7 @@ random.seed(423)
 seed = 42
 
 # HYPER PARAMETERS 
-lr = 1e3 # learning rate
+lr = 1e-2 # learning rate
 save_epoch = 100
 models_root = 'models/'
 batch_size = 2
@@ -53,3 +53,8 @@ test_rawframes = test_features_numpy
 
 # INITIALIZATION
 model = rnn(frame_len, frame_len*2, hidden_size, batch_size, numframes)
+
+i = 0;
+vinframes = train_rawframes[i*batch_size:(i+1)*batch_size, :]
+vtruth = train_labels[i*batch_size:(i+1)*batch_size, :]
+# cost = model.train(inframes, truth, lr)
