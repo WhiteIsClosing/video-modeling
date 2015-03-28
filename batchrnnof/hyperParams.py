@@ -14,8 +14,8 @@ features_root = 'features/'
 
 
 # MODEL PARAMETERS 
-lr = 1e-4 # learning rate
+lr = 1e2 # learning rate
 save_epoch = 100
 models_root = 'models/'
-batch_size = 100
+batch_size = 1
 hidden_size = 50

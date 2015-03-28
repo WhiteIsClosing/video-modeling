@@ -143,3 +143,5 @@ def loadOpticalFlow():
   # test_ofx = test_ofx[:testframes, :]
   # test_ofy = test_ofx[:testframes, :]
   return (train_ofx, train_ofy, test_ofx,  test_ofy)
+  # return (train_ofx, train_ofy, test_ofx,  test_ofy, \
+  #         ofx_mean, ofx_std, ofy_mean, ofy_std)

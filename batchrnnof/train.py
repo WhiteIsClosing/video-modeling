@@ -17,12 +17,6 @@ numpy.random.seed(42)
 random.seed(423)
 seed = 42
 
-# HYPER PARAMETERS 
-lr = 1e-2 # learning rate
-save_epoch = 100
-models_root = 'models/'
-batch_size = 2
-hidden_size = 2
 
 # LOAD DATA
 train_features_numpy, test_features_numpy, numtrain, numtest, \
@@ -30,6 +24,8 @@ data_mean, data_std = loadFromImg()
 # train_features_theano = theano.shared(train_features_numpy)
 
 train_ofx, train_ofy, test_ofx,  test_ofy = loadOpticalFlow()
+# train_ofx, train_ofy, test_ofx,  test_ofy, \
+#   ofx_mean, ofx_std, ofy_mean, ofy_std = loadOpticalFlow()
 train_labels = numpy.concatenate((train_ofx, train_ofy), axis = 1)
 test_labels = numpy.concatenate((test_ofx, test_ofy), axis = 1)
 
