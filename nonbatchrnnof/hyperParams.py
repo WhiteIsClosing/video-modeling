@@ -16,12 +16,12 @@ numseqs_test = numframes_test / seq_len
 hidden_size = 100
 
 # OPTIMIZATION PARAMETERS
-lr = 1.e1 # learning rate
+lr = 1.e-3 # learning rate
 batch_size = 1
-save_epoch = 5
+save_epoch = 50
 
-max_decay = 20
-epsl = 1e-6
+max_decay = 5
+epsl = 1e-8
 
 # IO PARAMTERES
 models_path = 'models/'

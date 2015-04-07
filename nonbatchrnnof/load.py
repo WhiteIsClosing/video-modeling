@@ -9,6 +9,36 @@ from scipy import misc
 
 from hyperParams import *
 
+def loadFrames():
+
+  frames_train = numpy.load(data_path + 'train/' + 'frames.npy')[:numframes_train, :] 
+  frames_train = numpy.reshape(frames_train, (numseqs_train, seq_dim)).astype('float32')
+
+  frames_test = numpy.load(data_path + 'test/' + 'frames.npy')[:numframes_test, :] 
+  frames_test = numpy.reshape(frames_test, (numseqs_test, seq_dim)).astype('float32')
+
+  return (frames_train, frames_test)
+
+
+def loadOpticalFlow():
+
+  ofx_train = numpy.load(data_path + 'train/' + 'ofx.npy')[:numframes_train, :] 
+  ofy_train = numpy.load(data_path + 'train/' + 'ofy.npy')[:numframes_train, :]
+  ofx_test = numpy.load(data_path + 'test/' + 'ofx.npy')[:numframes_test, :]
+  ofy_test = numpy.load(data_path + 'test/' + 'ofy.npy')[:numframes_test, :]
+
+  ofx_train = numpy.reshape(ofx_train, (numseqs_train, seq_dim)).astype('float32')
+  ofy_train = numpy.reshape(ofy_train, (numseqs_train, seq_dim)).astype('float32')
+  ofx_test = numpy.reshape(ofx_test, (numseqs_test, seq_dim)).astype('float32')
+  ofy_test = numpy.reshape(ofy_test, (numseqs_test, seq_dim)).astype('float32')
+
+
+  return (ofx_train, ofy_train, ofx_test, ofy_test)
+
+
+
+
+# Abandoned below # 
 
 # Read frames:
 def readFrames(list, seq_num, maxframes):
@@ -97,30 +127,3 @@ def readFrames(list, seq_num, maxframes):
 #   numseqs_test = features_test_numpy.shape[0]
 #   return (features_train_numpy, features_test_numpy, numseqs_train, numseqs_test, data_mean, data_std)
 
-def loadFrames():
-
-  frames_train = numpy.load(data_path + 'train/' + 'frames.npy')[:numframes_train, :] 
-  frames_train = numpy.reshape(frames_train, (numseqs_train, seq_dim)).astype('float32')
-
-  frames_test = numpy.load(data_path + 'test/' + 'frames.npy')[:numframes_test, :] 
-  frames_test = numpy.reshape(frames_test, (numseqs_test, seq_dim)).astype('float32')
-
-  return (frames_train, frames_test)
-
-
-  return (ofx_train, ofy_train, ofx_test,  ofy_test)
-
-def loadOpticalFlow():
-
-  ofx_train = numpy.load(data_path + 'train/' + 'ofx.npy')[:numframes_train, :] 
-  ofy_train = numpy.load(data_path + 'train/' + 'ofy.npy')[:numframes_train, :]
-  ofx_test = numpy.load(data_path + 'test/' + 'ofx.npy')[:numframes_test, :]
-  ofy_test = numpy.load(data_path + 'test/' + 'ofy.npy')[:numframes_test, :]
-
-  ofx_train = numpy.reshape(ofx_train, (numseqs_train, seq_dim)).astype('float32')
-  ofy_train = numpy.reshape(ofy_train, (numseqs_train, seq_dim)).astype('float32')
-  ofx_test = numpy.reshape(ofx_test, (numseqs_test, seq_dim)).astype('float32')
-  ofy_test = numpy.reshape(ofy_test, (numseqs_test, seq_dim)).astype('float32')
-
-
-  return (ofx_train, ofy_train, ofx_test,  ofy_test)

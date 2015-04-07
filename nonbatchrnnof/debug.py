@@ -97,9 +97,9 @@ while (1):
   epoch += 1
 
   # SHUFFLE
-  numpy.random.seed(seed)
-  numpy.random.shuffle(rawframes_train)
-  numpy.random.shuffle(labels_train)
+  # numpy.random.seed(seed)
+  # numpy.random.shuffle(rawframes_train)
+  # numpy.random.shuffle(labels_train)
 
   # TRAIN PHASE
   tic = clock()
@@ -118,6 +118,36 @@ while (1):
   logInfo.mark('# epoch: ' + str(epoch) + '\tcost_train: ' + str(cost_train) + '\tcost_test: ' + str(cost_test) +'\tlearning_rate: ' + str(lr) + '\ttime: ' + str(toc-tic))
 
 
+  # predictions
+  for i in xrange(numseqs_train):
+    preds_train[i*seq_len:(i+1)*seq_len, :] = model.predict(rawframes_train[i*seq_len:(i+1)*seq_len, :])
+
+  for i in xrange(numseqs_test/seq_len):
+    preds_test[i*seq_len:(i+1)*seq_len, :] = model.predict(rawframes_test[i*seq_len:(i+1)*seq_len, :])
+
+  cost_train = numpy.mean((preds_train - labels_train)**2) * (preds_train.shape[0] * preds_train.shape[1])
+  logInfo.mark('cost_train: ' + str(cost_train))
+  logInfo.mark('preds_train: ' + str(numpy.sum(numpy.sum(preds_train))) + '\t' + str(numpy.sum(numpy.sum(preds_train ** 2))))
+  logInfo.mark('labels_train: ' + str(numpy.sum(numpy.sum(labels_train))) + '\t' + str(numpy.sum(numpy.sum(labels_train ** 2))))
+  # print preds_train
+  # print labels_train
+  print numpy.sum(numpy.sum(preds_train - labels_train))
+
+
+
+
+  # VALIDATE PHASE
+  if prev_cost <= cost_test:
+    model.load(models_path + 'model.npy')
+
+    #LOG#
+    logInfo.mark('load model ...')
+
+  else: 
+    prev_cost = cost_test
+    model.save(models_path + 'model')
+
+
   # LEARNING RATE DECAY
   if prev_cost - cost_test <= epsl:
     if decay > 0:
@@ -131,18 +161,6 @@ while (1):
 
   else:
     decay = max_decay
-
-
-  # VALIDATE PHASE
-  if prev_cost <= cost_test:
-    model.load(models_path + 'model.npy')
-
-    #LOG#
-    logInfo.mark('load model ...')
-
-  else: 
-    prev_cost = cost_test
-    model.save(models_path + 'model')
 
 
   # SAVE MODEL
@@ -161,4 +179,15 @@ while (1):
 
     #LOG#
     logInfo.mark('saved model @ ' + models_path + 'model_' + str(epoch))
+
+
+  # # DEBUG
+  # i = 0
+  # preds_train[i*seq_len:(i+1)*seq_len, :] = model.predict(rawframes_train[i*seq_len:(i+1)*seq_len, :])
+
+  # pred = preds_train[0, 0*frame_dim:1*frame_dim]
+
+  # pred_img = numpy.reshape(pred, image_shape)
+  
+
 
