@@ -25,7 +25,7 @@ epsl = 1e-8
 
 # IO PARAMTERES
 models_path = 'models/'
-preds_path = 'preds/'
+pred_path = 'prediction/'
 #features_path = 'features/'
-predicted_frames_path = 'predicted_frames/'
+vis_path = 'visualization/'
 

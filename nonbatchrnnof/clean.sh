@@ -3,8 +3,8 @@
 
 logfile='LOG.txt'
 models='models'
-predicted_frames='predicted_frames'
-preds='preds'
+visualization='visualization'
+prediction='prediction'
 features='features'
 backup='backup'
 backup_root=$backup'/'
@@ -24,14 +24,14 @@ then
   rm -r $models 
 fi
 
-if [ -d $predicted_frames ] 
+if [ -d $visualization ] 
 then
-  rm -r $predicted_frames 
+  rm -r $visualization 
 fi
 
-if [ -d $preds ] 
+if [ -d $prediction ] 
 then
-  rm -r $preds 
+  rm -r $prediction 
 fi
 
 if [ -d $features ] 

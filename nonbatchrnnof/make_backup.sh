@@ -3,8 +3,8 @@
 
 logfile='LOG.txt'
 models='models'
-predicted_frames='predicted_frames'
-preds='preds'
+visualization='visualization'
+prediction='prediction'
 features='features'
 backup='backup_stored'
 backup_root=$backup'/'
@@ -28,16 +28,16 @@ then
   mv $models $backup_root$models
 fi
 
-if [ -d $predicted_frames ] 
+if [ -d $visualization ] 
 then
-  echo $predicted_frames 'exists'
-  mv $predicted_frames $backup_root$predicted_frames
+  echo $visualization 'exists'
+  mv $visualization $backup_root$visualization
 fi
 
-if [ -d $preds ] 
+if [ -d $prediction ] 
 then
-  echo $preds 'exists'
-  mv $preds $backup_root$preds
+  echo $prediction 'exists'
+  mv $prediction $backup_root$prediction
 fi
 
 if [ -d $features ] 

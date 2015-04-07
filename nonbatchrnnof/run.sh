@@ -3,8 +3,8 @@
 
 logfile='LOG.txt'
 models='models'
-predicted_frames='predicted_frames'
-preds='preds'
+visualization='visualization'
+prediction='prediction'
 features='features'
 backup='backup'
 backup_root=$backup'/'
@@ -29,31 +29,33 @@ then
 fi
 mkdir $models
 
-if [ -d $predicted_frames ] 
+if [ -d $visualization ] 
 then
-  echo $predicted_frames 'exists'
-  mv $predicted_frames $backup_root$predicted_frames
+  echo $visualization 'exists'
+  mv $visualization $backup_root$visualization
 fi
-mkdir $predicted_frames
-mkdir $predicted_frames'/train'
-mkdir $predicted_frames'/train/ofx'
-mkdir $predicted_frames'/train/ofy'
-mkdir $predicted_frames'/train/true_ofx'
-mkdir $predicted_frames'/train/true_ofy'
-mkdir $predicted_frames'/test'
-mkdir $predicted_frames'/test/ofx'
-mkdir $predicted_frames'/test/ofy'
-mkdir $predicted_frames'/test/true_ofx'
-mkdir $predicted_frames'/test/true_ofy'
+mkdir $visualization
+mkdir $visualization'/train'
+mkdir $visualization'/train/ofx'
+mkdir $visualization'/train/ofy'
+mkdir $visualization'/train/true_frames'
+mkdir $visualization'/train/true_ofx'
+mkdir $visualization'/train/true_ofy'
+mkdir $visualization'/test'
+mkdir $visualization'/test/ofx'
+mkdir $visualization'/test/ofy'
+mkdir $visualization'/test/true_frames'
+mkdir $visualization'/test/true_ofx'
+mkdir $visualization'/test/true_ofy'
 
-if [ -d $preds ] 
+if [ -d $prediction ] 
 then
-  echo $preds 'exists'
-  mv $preds $backup_root$preds
+  echo $prediction 'exists'
+  mv $prediction $backup_root$prediction
 fi
-mkdir $preds
-mkdir $preds'/train'
-mkdir $preds'/test'
+mkdir $prediction
+# mkdir $prediction'/train'
+# mkdir $prediction'/test'
 
 if [ -d $features ] 
 then

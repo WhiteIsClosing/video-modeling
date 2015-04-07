@@ -156,8 +156,8 @@ while (1):
     for i in xrange(numseqs_test/seq_len):
       preds_test[i*seq_len:(i+1)*seq_len, :] = model.predict(rawframes_test[i*seq_len:(i+1)*seq_len, :])
 
-    numpy.save(preds_path + 'preds_train' + str(epoch), preds_train)
-    numpy.save(preds_path + 'preds_test' + str(epoch), preds_test)
+    numpy.save(pred_path + 'preds_train' + str(epoch), preds_train)
+    numpy.save(pred_path + 'preds_test' + str(epoch), preds_test)
 
     #LOG#
     logInfo.mark('saved model @ ' + models_path + 'model_' + str(epoch))
