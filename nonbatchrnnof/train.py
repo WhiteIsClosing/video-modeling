@@ -74,6 +74,10 @@ toc = clock()
 
 #LOG#
 logInfo.mark('initial time: ' + str(toc - tic))
+squared_mean_train = numpy.mean(labels_train[1:, :] ** 2)
+squared_mean_test = numpy.mean(labels_test[1:, :] ** 2)
+print squared_mean_train
+print squared_mean_test
 
 '''
 Data format:
@@ -97,9 +101,9 @@ while (1):
   epoch += 1
 
   # SHUFFLE
-  numpy.random.seed(seed)
-  numpy.random.shuffle(rawframes_train)
-  numpy.random.shuffle(labels_train)
+  # numpy.random.seed(seed)
+  # numpy.random.shuffle(rawframes_train)
+  # numpy.random.shuffle(labels_train)
 
   # TRAIN PHASE
   tic = clock()
@@ -107,12 +111,15 @@ while (1):
   for i in xrange(numseqs_train):
     cost_train += model.train(rawframes_train[i*seq_len:(i+1)*seq_len, :], labels_train[i*seq_len:(i+1)*seq_len, :], lr)
   cost_train /= numseqs_train
+  cost_train /= squared_mean_train
   toc = clock()
+
 
   cost_test = 0.
   for i in xrange(numseqs_test):
     cost_test += model.getCost(rawframes_test[i*seq_len:(i+1)*seq_len, :], labels_test[i*seq_len:(i+1)*seq_len, :])
   cost_test /= numseqs_test 
+  cost_test /= squared_mean_test
 
   #LOG#
   logInfo.mark('# epoch: ' + str(epoch) + '\tcost_train: ' + str(cost_train) + '\tcost_test: ' + str(cost_test) +'\tlearning_rate: ' + str(lr) + '\ttime: ' + str(toc-tic))
@@ -156,8 +163,8 @@ while (1):
     for i in xrange(numseqs_test/seq_len):
       preds_test[i*seq_len:(i+1)*seq_len, :] = model.predict(rawframes_test[i*seq_len:(i+1)*seq_len, :])
 
-    numpy.save(pred_path + 'preds_train' + str(epoch), preds_train)
-    numpy.save(pred_path + 'preds_test' + str(epoch), preds_test)
+    numpy.save(pred_path + 'preds_train_' + str(epoch), preds_train)
+    numpy.save(pred_path + 'preds_test_' + str(epoch), preds_test)
 
     #LOG#
     logInfo.mark('saved model @ ' + models_path + 'model_' + str(epoch))

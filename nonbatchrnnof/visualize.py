@@ -15,7 +15,7 @@ from utils import plotFrames
 
 idx = 8000
 max_num = 10
-preds = numpy.load(pred_path + 'preds_train' + str(idx) + '.npy')
+preds = numpy.load(pred_path + 'preds_train_' + str(idx) + '.npy')
 ofx_pred_train = preds[:, :frame_dim]
 ofy_pred_train = preds[:, frame_dim:]
 
