@@ -1,0 +1,9 @@
+initial time: 19.49
+# epoch: 1	cost_train: 0.81628301702	cost_test: 0.794613903217	learning_rate: 10.0	time: 11.79
+# epoch: 2	cost_train: 0.798099588947	cost_test: 0.79291754099	learning_rate: 10.0	time: 11.65
+# epoch: 3	cost_train: 0.796587632826	cost_test: 0.79156774316	learning_rate: 10.0	time: 11.7
+# epoch: 4	cost_train: 0.794961933543	cost_test: 0.789868263999	learning_rate: 10.0	time: 11.66
+# epoch: 5	cost_train: 0.792771839493	cost_test: 0.787560954854	learning_rate: 10.0	time: 11.7
+# epoch: 6	cost_train: 0.789864989619	cost_test: 0.784596389164	learning_rate: 10.0	time: 11.68
+# epoch: 7	cost_train: 0.786386512236	cost_test: 0.781159875986	learning_rate: 10.0	time: 11.7
+# epoch: 8	cost_train: 0.782669804453	cost_test: 0.777471949763	learning_rate: 10.0	time: 11.66
