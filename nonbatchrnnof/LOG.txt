@@ -1,0 +1,2 @@
+initial time: 15.47
+# epoch: 1	cost_train: 2.03383821671	cost_test: 0.944585751205	learning_rate: 10.0	time: 5.2

@@ -7,11 +7,14 @@ import random
 import theano
 from time import clock
 
+sys.path.insert(0, '..')
+
 from hyperParams import *
-from load import loadFrames
-from load import loadOpticalFlow
 from rnn import RNN
-from utils import LogInfo
+
+from load import *
+from logInfo import *
+from plot import *
 
 seed = 42
 numpy.random.seed(seed)
@@ -76,8 +79,8 @@ toc = clock()
 logInfo.mark('initial time: ' + str(toc - tic))
 squared_mean_train = numpy.mean(labels_train[1:, :] ** 2)
 squared_mean_test = numpy.mean(labels_test[1:, :] ** 2)
-print squared_mean_train
-print squared_mean_test
+print 'squared_mean_train: ' + str(squared_mean_train)
+print 'squared_mean_test: ' + str(squared_mean_test)
 
 '''
 Data format:
