@@ -27,8 +27,10 @@ class RNN(object):
         # bundle
         self.params = [self.Wx, self.Wh, self.W, self.bh, self.b, self.h0 ]
         self.names  = ['Wx', 'Wh', 'W', 'bh', 'b', 'h0']
-        x = T.matrix(name='x') # input features
-        d = T.matrix(name='d') # input ground truth
+        # idxs = T.imatrix() # as many columns as context window size/lines as words in the sentence
+        # x = self.emb[idxs].reshape((idxs.shape[0], dimx*maxT))
+        x = T.matrix(name='x') 
+        y = T.matrix(name='y') # output: optical flow
 
 
         def recurrence(x_t, h_tm1):
@@ -41,7 +43,7 @@ class RNN(object):
             sequences=x, outputs_info=[self.h0, None], \
             n_steps=x.shape[0])
 
-        cost = T.mean((d[1:, :] - s[1:, :]) ** 2)
+        cost = T.mean((y[1:, :] - s[1:, :]) ** 2)
 
         # cost and gradients and learning rate
         lr = T.scalar('lr') # learning rate
@@ -51,14 +53,14 @@ class RNN(object):
         # theano functions
         self.predict = theano.function(inputs=[x], outputs=s)
 
-        self.train = theano.function( inputs  = [x, d, lr],
+        self.train = theano.function( inputs  = [x, y, lr],
                                       outputs = cost,
                                       updates = updates )
 
         # self.normalize = theano.function( inputs = [],
         #                  updates = {self.emb:\
         #                  self.emb/T.sqrt((self.emb**2).sum(axis=1)).dimshuffle(0,'x')})
-        self.getCost = theano.function(inputs = [x, d], \
+        self.getCost = theano.function(inputs = [x, y], \
                         outputs = cost)
 
     def updateparams(self, newparams):

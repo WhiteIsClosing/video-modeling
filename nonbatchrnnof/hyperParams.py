@@ -2,8 +2,8 @@
 data_path = '../data/bouncing_balls/1balls/' 
 image_suffix = '.jpeg'
 image_shape = (16, 16) # single channel images
-numframes_train = 5000
-numframes_test = 1000
+numframes_train = 8000
+numframes_test = 2000
 seq_len = 5
 
 # Data size paramters according to user configurations:

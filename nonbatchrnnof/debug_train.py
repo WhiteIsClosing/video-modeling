@@ -74,29 +74,15 @@ toc = clock()
 
 #LOG#
 logInfo.mark('initial time: ' + str(toc - tic))
-squared_mean_train = numpy.mean(labels_train[1:, :] ** 2)
-squared_mean_test = numpy.mean(labels_test[1:, :] ** 2)
-print squared_mean_train
-print squared_mean_test
 
-'''
-Data format:
-frame[0]          ...   frame[seq_len-1]
-frame[seq_len]  ...
+print numpy.mean(labels_train[1:, :] ** 2)
 
-...
-
-frame[(numseqs_train-1)*seq_len]   ...   frame[]
-
-'''
 
 # TRAINING
 preds_train = numpy.zeros(labels_train.shape)
 preds_test = numpy.zeros(labels_test.shape)
 
 epoch = 0
-prev_cost = 1e10
-decay = max_decay
 while (1):
   epoch += 1
 
@@ -111,46 +97,16 @@ while (1):
   for i in xrange(numseqs_train):
     cost_train += model.train(rawframes_train[i*seq_len:(i+1)*seq_len, :], labels_train[i*seq_len:(i+1)*seq_len, :], lr)
   cost_train /= numseqs_train
-  cost_train /= squared_mean_train
   toc = clock()
 
-
   cost_test = 0.
-  for i in xrange(numseqs_test):
-    cost_test += model.getCost(rawframes_test[i*seq_len:(i+1)*seq_len, :], labels_test[i*seq_len:(i+1)*seq_len, :])
-  cost_test /= numseqs_test 
-  cost_test /= squared_mean_test
+  # for i in xrange(numseqs_test):
+  #   cost_test += model.getCost(rawframes_test[i*seq_len:(i+1)*seq_len, :], labels_test[i*seq_len:(i+1)*seq_len, :])
+  # cost_test /= numseqs_test 
 
   #LOG#
   logInfo.mark('# epoch: ' + str(epoch) + '\tcost_train: ' + str(cost_train) + '\tcost_test: ' + str(cost_test) +'\tlearning_rate: ' + str(lr) + '\ttime: ' + str(toc-tic))
-
-
-  # LEARNING RATE DECAY
-  if prev_cost - cost_test <= epsl:
-    if decay > 0:
-      decay -= 1
-    else:
-      lr /= 2
-      decay = max_decay
-
-      #LOG#
-      logInfo.mark('learning_rate decay to ' + str(lr))
-
-  else:
-    decay = max_decay
-
-
-  # VALIDATE PHASE
-  if prev_cost <= cost_test:
-    model.load(models_path + 'model.npy')
-
-    #LOG#
-    logInfo.mark('load model ...')
-
-  else: 
-    prev_cost = cost_test
-    model.save(models_path + 'model')
-
+  
 
   # SAVE MODEL
   if (epoch % save_epoch == 0):
@@ -160,11 +116,13 @@ while (1):
     for i in xrange(numseqs_train):
       preds_train[i*seq_len:(i+1)*seq_len, :] = model.predict(rawframes_train[i*seq_len:(i+1)*seq_len, :])
 
+    print numpy.mean(preds_train[1:, :] ** 2)
+
     for i in xrange(numseqs_test/seq_len):
       preds_test[i*seq_len:(i+1)*seq_len, :] = model.predict(rawframes_test[i*seq_len:(i+1)*seq_len, :])
 
-    numpy.save(pred_path + 'preds_train_' + str(epoch), preds_train)
-    numpy.save(pred_path + 'preds_test_' + str(epoch), preds_test)
+    numpy.save(pred_path + 'preds_train' + str(epoch), preds_train)
+    numpy.save(pred_path + 'preds_test' + str(epoch), preds_test)
 
     #LOG#
     logInfo.mark('saved model @ ' + models_path + 'model_' + str(epoch))
