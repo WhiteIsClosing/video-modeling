@@ -11,7 +11,8 @@ from hyperParams import *
 from load import loadFrames
 from load import loadOpticalFlow
 from rnn import RNN
-from utils import LogInfo
+from logInfo import *
+from plot import *
 
 seed = 42
 numpy.random.seed(seed)
@@ -103,6 +104,7 @@ while (1):
   # SHUFFLE
   # numpy.random.seed(seed)
   # numpy.random.shuffle(rawframes_train)
+  # numpy.random.seed(seed)
   # numpy.random.shuffle(labels_train)
 
   # TRAIN PHASE

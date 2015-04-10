@@ -11,7 +11,8 @@ from hyperParams import *
 from load import loadFrames
 from load import loadOpticalFlow
 from rnn import RNN
-from utils import LogInfo
+from logInfo import *
+from plot import *
 
 seed = 42
 numpy.random.seed(seed)
@@ -95,7 +96,7 @@ frame[(numseqs_train-1)*seq_len]   ...   frame[]
 '''
 
 # TRAINING
-preds_train = numpy.zeros(labels_train.shape)
+preds_train = numpy.zeros(labels_train_.shape)
 preds_test = numpy.zeros(labels_test.shape)
 
 epoch = 0
@@ -107,6 +108,7 @@ while (1):
   # SHUFFLE
   numpy.random.seed(seed)
   numpy.random.shuffle(rawframes_train_sf)
+  numpy.random.seed(seed)
   numpy.random.shuffle(labels_train_sf)
 
   rawframes_train = \
@@ -163,6 +165,9 @@ while (1):
   # SAVE MODEL
   if (epoch % save_epoch == 0):
     model.save(models_path + 'model_' + str(epoch))
+    
+    print preds_train.shape
+    print rawframes_train_.shape
 
     # predictions
     for i in xrange(numseqs_train):
