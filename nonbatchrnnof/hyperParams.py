@@ -2,8 +2,8 @@
 data_path = '../data/bouncing_balls/1balls/' 
 image_suffix = '.jpeg'
 image_shape = (16, 16) # single channel images
-numframes_train = 8000
-numframes_test = 2000
+numframes_train = 5000
+numframes_test = 1000
 seq_len = 5
 
 # Data size paramters according to user configurations:
@@ -18,9 +18,9 @@ hidden_size = 100
 # OPTIMIZATION PARAMETERS
 lr = 1.e1 # learning rate
 batch_size = 1
-save_epoch = 3
+save_epoch = 100
 
-max_decay = 5
+max_decay = 20
 epsl = 0.
 
 # IO PARAMTERES
