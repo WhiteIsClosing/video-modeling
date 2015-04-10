@@ -36,15 +36,19 @@ then
 fi
 mkdir $visualization
 mkdir $visualization'/train'
-mkdir $visualization'/train/ofx'
-mkdir $visualization'/train/ofy'
+mkdir $visualization'/train/pred_of'
+mkdir $visualization'/train/pred_ofx'
+mkdir $visualization'/train/pred_ofy'
 mkdir $visualization'/train/true_frames'
+mkdir $visualization'/train/true_of'
 mkdir $visualization'/train/true_ofx'
 mkdir $visualization'/train/true_ofy'
 mkdir $visualization'/test'
-mkdir $visualization'/test/ofx'
-mkdir $visualization'/test/ofy'
+mkdir $visualization'/test/pred_of'
+mkdir $visualization'/test/pred_ofx'
+mkdir $visualization'/test/pred_ofy'
 mkdir $visualization'/test/true_frames'
+mkdir $visualization'/test/true_of'
 mkdir $visualization'/test/true_ofx'
 mkdir $visualization'/test/true_ofy'
 
@@ -57,12 +61,12 @@ mkdir $prediction
 # mkdir $prediction'/train'
 # mkdir $prediction'/test'
 
-if [ -d $features ] 
-then
-  echo $features 'exists'
-  mv $features $backup_root$features
-fi
-mkdir $features
+# if [ -d $features ] 
+# then
+#   echo $features 'exists'
+#   mv $features $backup_root$features
+# fi
+# mkdir $features
 
 echo 'Copied existed folders to backup/ and created new folders'
 

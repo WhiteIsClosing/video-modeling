@@ -18,7 +18,7 @@ hidden_size = 100
 # OPTIMIZATION PARAMETERS
 lr = 1.e1 # learning rate
 batch_size = 1
-save_epoch = 100
+save_epoch = 3
 
 max_decay = 5
 epsl = 0.

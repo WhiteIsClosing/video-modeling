@@ -34,10 +34,10 @@ then
   rm -r $prediction 
 fi
 
-if [ -d $features ] 
-then
-  rm -r $features 
-fi
+# if [ -d $features ] 
+# then
+#   rm -r $features 
+# fi
 
 rm *.pyc
 rm .*.swp

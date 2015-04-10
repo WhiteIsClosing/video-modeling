@@ -1,5 +1,5 @@
 # DATA SIZE
-data_path = '../data/bouncing_balls/1balls/' 
+data_path = '../data/bouncing_balls/3balls/' 
 image_suffix = '.jpeg'
 image_shape = (16, 16) # single channel images
 numframes_train = 8000

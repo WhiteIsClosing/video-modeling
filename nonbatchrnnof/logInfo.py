@@ -6,8 +6,8 @@ class LogInfo(object):
     self.verbose = verbose
 
   def __del__(self):
+    self.mark('Finished logging.')
     self.flog.close()
-    print 'Finished logging.'
   
   def mark(self, content):
     if (self.verbose == 1):
