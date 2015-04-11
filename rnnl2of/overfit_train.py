@@ -120,19 +120,12 @@ while (1):
   cost_train /= squared_mean_train
   toc = clock()
 
-
-  cost_test = 0.
-  for i in xrange(numseqs_test):
-    cost_test += model.getCost(rawframes_test[i*seq_len:(i+1)*seq_len, :], labels_test[i*seq_len:(i+1)*seq_len, :])
-  cost_test /= numseqs_test 
-  cost_test /= squared_mean_test
-
   #LOG#
-  logInfo.mark('# epoch: ' + str(epoch) + '\tcost_train: ' + str(cost_train) + '\tcost_test: ' + str(cost_test) +'\tlearning_rate: ' + str(lr) + '\ttime: ' + str(toc-tic))
+  logInfo.mark('# epoch: ' + str(epoch) + '\tcost_train: ' + str(cost_train) + '\tcost_train: ' + str(cost_train) +'\tlearning_rate: ' + str(lr) + '\ttime: ' + str(toc-tic))
 
 
   # LEARNING RATE DECAY
-  if prev_cost - cost_test <= epsl:
+  if prev_cost - cost_train <= epsl:
     if decay > 0:
       decay -= 1
     else:
@@ -147,14 +140,14 @@ while (1):
 
 
   # VALIDATE PHASE
-  if prev_cost <= cost_test:
+  if prev_cost <= cost_train:
     model.load(models_path + 'model.npy')
 
     #LOG#
     logInfo.mark('load model ...')
 
   else: 
-    prev_cost = cost_test
+    prev_cost = cost_train
     model.save(models_path + 'model')
 
 
