@@ -1,8 +1,8 @@
 #!/bin/bash
-path='./'
+path='rnnl2of6/'
 models='models'
 prediction='prediction'
-idx=35000
+idx=34600
 
 rm -r $path'/backup'
 

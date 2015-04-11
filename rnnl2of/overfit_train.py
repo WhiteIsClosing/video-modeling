@@ -153,7 +153,11 @@ while (1):
 
   # SAVE MODEL
   if (epoch % save_epoch == 0):
+<<<<<<< HEAD
     model.save(models_path + 'model')
+=======
+    model.save(models_path + 'model_' + str(epoch))
+>>>>>>> 7bab9a8dfbd7cdcb710c97a83a973b7fdbb05bbd
 
     # predictions
     for i in xrange(numseqs_train):
@@ -162,6 +166,7 @@ while (1):
     for i in xrange(numseqs_test/seq_len):
       preds_test[i*seq_len:(i+1)*seq_len, :] = model.predict(rawframes_test[i*seq_len:(i+1)*seq_len, :])
 
+<<<<<<< HEAD
     numpy.save(pred_path + 'preds_train', preds_train)
     numpy.save(pred_path + 'preds_test', preds_test)
 
@@ -170,9 +175,15 @@ while (1):
 
   if (epoch % backup_epoch == 0):
     model.save(models_path + 'model_' + str(epoch))
+=======
+>>>>>>> 7bab9a8dfbd7cdcb710c97a83a973b7fdbb05bbd
     numpy.save(pred_path + 'preds_train_' + str(epoch), preds_train)
     numpy.save(pred_path + 'preds_test_' + str(epoch), preds_test)
 
     #LOG#
+<<<<<<< HEAD
     logInfo.mark('backuped model @ ' + models_path + 'model_' + str(epoch) + '.npy')
+=======
+    logInfo.mark('saved model @ ' + models_path + 'model_' + str(epoch))
+>>>>>>> 7bab9a8dfbd7cdcb710c97a83a973b7fdbb05bbd
 
