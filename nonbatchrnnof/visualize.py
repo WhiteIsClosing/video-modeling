@@ -14,19 +14,18 @@ from load import *
 from logInfo import *
 from plot import *
 
-idx = 3
-max_num = 100
+max_num = 1000
 th_of = 0.1
 
 features_train_numpy, features_test_numpy = loadFrames()
 ofx_train, ofy_train, ofx_test, ofy_test = loadOpticalFlow()
 
-preds_train = numpy.load(pred_path + 'preds_train_' + str(idx) + '.npy')
+preds_train = numpy.load(pred_path + 'preds_train.npy')
 ofx_pred_train = preds_train[:, :frame_dim]
 ofy_pred_train = preds_train[:, frame_dim:]
 frames_train = features_train_numpy
 
-preds_test = numpy.load(pred_path + 'preds_test_' + str(idx) + '.npy')
+preds_test = numpy.load(pred_path + 'preds_test.npy')
 ofx_pred_test = preds_test[:, :frame_dim]
 ofy_pred_test = preds_test[:, frame_dim:]
 frames_test = features_test_numpy
