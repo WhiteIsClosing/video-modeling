@@ -173,8 +173,8 @@ while (1):
 
   if (epoch % backup_epoch == 0):
     model.save(models_path + 'model_' + str(epoch))
-    numpy.save(pred_path + 'preds_train_' + str(epoch), preds_train)
-    numpy.save(pred_path + 'preds_test_' + str(epoch), preds_test)
+    # numpy.save(pred_path + 'preds_train_' + str(epoch), preds_train)
+    # numpy.save(pred_path + 'preds_test_' + str(epoch), preds_test)
 
     #LOG#
     logInfo.mark('backuped model @ ' + models_path + 'model_' + str(epoch) + '.npy')
