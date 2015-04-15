@@ -1,7 +1,5 @@
 time of loading data: 0.9
-time of computing velocity mappint units: 20.51
-time of initializing the model: 26.94
-# epoch: 1	cost_train: 1.02726465727	cost_test: 1.01242784961	learning_rate: 10.0	time: 95.17
-# epoch: 2	cost_train: 1.00810463404	cost_test: 1.01093981207	learning_rate: 10.0	time: 94.53
-# epoch: 3	cost_train: 1.00570008349	cost_test: 1.00919505983	learning_rate: 10.0	time: 93.92
-# epoch: 4	cost_train: 1.00280850996	cost_test: 1.00667026394	learning_rate: 10.0	time: 93.88
+time of computing velocity mappint units: 20.75
+time of initializing the model: 26.85
+# epoch: 1	cost_train: 1.02285945631	cost_test: 1.00615916876	learning_rate: 10.0	time: 98.86
+# epoch: 2	cost_train: 1.00287937164	cost_test: 1.00449638818	learning_rate: 10.0	time: 97.07

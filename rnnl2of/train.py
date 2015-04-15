@@ -18,7 +18,11 @@ seed = 42
 numpy.random.seed(seed)
 random.seed(423)
 
+#LOG# 
+logInfo = LogInfo('LOG.txt')
+
 # LOAD DATA
+tic = clock()
 features_train_numpy, features_test_numpy = loadFrames()
 
 ofx_train, ofy_train, ofx_test,  ofy_test = loadOpticalFlow()
@@ -64,17 +68,18 @@ labels_train = numpy.reshape(labels_train, (numframes_train, frame_dim*2))
 rawframes_test = \
 numpy.reshape(features_test_numpy, (numframes_test, frame_dim))
 labels_test = numpy.reshape(labels_test, (numframes_test, frame_dim*2))
-
-#LOG# 
-logInfo = LogInfo('LOG.txt')
+toc = clock()
+#LOG#
+logInfo.mark('time of loading data: ' + str(toc - tic))
 
 # INITIALIZATION
 tic = clock()
-model = RNNL2(frame_dim, frame_dim*2, hidden1_size, hidden2_size)
+# model = RNNL2(frame_dim, frame_dim*2, hidden1_size, hidden2_size)
+model = RNNGC(frame_dim, frame_dim*2, hidden1_size, hidden2_size, numvel_)
 toc = clock()
-
 #LOG#
-logInfo.mark('initial time: ' + str(toc - tic))
+logInfo.mark('time of initializing the model: ' + str(toc - tic))
+
 squared_mean_train = numpy.mean(labels_train[1:, :] ** 2)
 squared_mean_test = numpy.mean(labels_test[1:, :] ** 2)
 print 'squared_mean_train: ' + str(squared_mean_train)
@@ -177,8 +182,8 @@ while (1):
 
   if (epoch % backup_epoch == 0):
     model.save(models_path + 'model_' + str(epoch))
-    numpy.save(pred_path + 'preds_train_' + str(epoch), preds_train)
-    numpy.save(pred_path + 'preds_test_' + str(epoch), preds_test)
+    # numpy.save(pred_path + 'preds_train_' + str(epoch), preds_train)
+    # numpy.save(pred_path + 'preds_test_' + str(epoch), preds_test)
 
     #LOG#
     logInfo.mark('backuped model @ ' + models_path + 'model_' + str(epoch) + '.npy')

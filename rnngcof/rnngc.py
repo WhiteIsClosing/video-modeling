@@ -52,7 +52,7 @@ class RNNGC(object):
             sequences=[x, vels], outputs_info=[self.h0, None], \
             n_steps=x.shape[0])
 
-        cost = T.mean((d[:-1, :] - s[1:, :]) ** 2)
+        cost = T.mean((d[1:, :] - s[1:, :]) ** 2)
 
         # cost and gradients and learning rate
         lr = T.scalar('lr') # learning rate
