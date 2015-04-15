@@ -18,4 +18,25 @@ class GCParamsValue(object):
         self.bv = gcParams.bv.get_value()
         self.ba = gcParams.ba.get_value()
         self.bj = gcParams.bj.get_value()
-        #self.params = gcParams.params
+
+        # grammar-cell velocity mapping unit
+        self.frame_left = T.matrix(name='frame_left')
+        self.frame_right = T.matrix(name='frame_right')
+        self.factor_left = T.dot(self.frame_left, self.wxf_left)
+        self.factor_right = T.dot(self.frame_right, self.wxf_right)
+        self.vel_ = T.nnet.sigmoid(T.dot(self.factor_left*self.factor_right, self.wv)+self.bv)
+        self.getVel = theano.function([self.frame_left, self.frame_right], self.vel_)
+
+    def getVels(self, x):
+        numvel = self.wv.shape[1]
+
+        x_left = numpy.concatenate((numpy.zeros((1, x.shape[1])).astype("float32"), x[:-1, :]), axis=0)
+        x_right = x
+        vels = numpy.zeros((x.shape[0], numvel)).astype("float32")
+        for t in range(x.shape[0]):
+            # print x_left[t, :].shape
+            # print x_left[[t], :].shape
+            vel = self.getVel(x_left[[t], :], x_right[[t], :])
+            vels[t, :] = vel
+
+        return vels

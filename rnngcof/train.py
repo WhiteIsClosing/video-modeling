@@ -22,7 +22,11 @@ seed = 42
 numpy.random.seed(seed)
 random.seed(423)
 
+#LOG# 
+logInfo = LogInfo('LOG.txt')
+
 # LOAD DATA
+tic = clock()
 features_train_numpy, features_test_numpy = loadFrames()
 
 ofx_train, ofy_train, ofx_test,  ofy_test = loadOpticalFlow()
@@ -68,9 +72,9 @@ labels_train = numpy.reshape(labels_train, (numframes_train, frame_dim*2))
 rawframes_test = \
 numpy.reshape(features_test_numpy, (numframes_test, frame_dim))
 labels_test = numpy.reshape(labels_test, (numframes_test, frame_dim*2))
-
-#LOG# 
-logInfo = LogInfo('LOG.txt')
+toc = clock()
+#LOG#
+logInfo.mark('time of loading data: ' + str(toc - tic))
 
 # INITIALIZATION
 gcParams = GCParams(numvis=frame_dim,
@@ -90,15 +94,22 @@ gcParams = GCParams(numvis=frame_dim,
                     theano_rng=theano_rng)
 gcParams.load(gc_path + 'model.npy')
 
-gcParamsValue = GCParamsValue(gcParams)
+gc = GCParamsValue(gcParams)
+
+tic = clock()
+vels_train = gc.getVels(rawframes_train)
+vels_test = gc.getVels(rawframes_test)
+toc = clock()
+#LOG#
+logInfo.mark('time of computing velocity mappint units: ' + str(toc - tic))
 
 tic = clock()
 # model = RNNL2(frame_dim, frame_dim*2, hidden1_size, hidden2_size)
-model = RNNGC(frame_dim, frame_dim*2, hidden1_size, hidden2_size, numvel_, gcParamsValue)
+model = RNNGC(frame_dim, frame_dim*2, hidden1_size, hidden2_size, numvel_)
 toc = clock()
-
 #LOG#
-logInfo.mark('initial time: ' + str(toc - tic))
+logInfo.mark('time of initializing the model: ' + str(toc - tic))
+
 squared_mean_train = numpy.mean(labels_train[1:, :] ** 2)
 squared_mean_test = numpy.mean(labels_test[1:, :] ** 2)
 print 'squared_mean_train: ' + str(squared_mean_train)
@@ -139,7 +150,7 @@ while (1):
   tic = clock()
   cost_train = 0.
   for i in xrange(numseqs_train):
-    cost_train += model.train(rawframes_train[i*seq_len:(i+1)*seq_len, :], labels_train[i*seq_len:(i+1)*seq_len, :], lr)
+    cost_train += model.train(rawframes_train[i*seq_len:(i+1)*seq_len, :], vels_train[i*seq_len:(i+1)*seq_len, :], labels_train[i*seq_len:(i+1)*seq_len, :], lr)
   cost_train /= numseqs_train
   cost_train /= squared_mean_train
   toc = clock()
@@ -147,7 +158,7 @@ while (1):
 
   cost_test = 0.
   for i in xrange(numseqs_test):
-    cost_test += model.getCost(rawframes_test[i*seq_len:(i+1)*seq_len, :], labels_test[i*seq_len:(i+1)*seq_len, :])
+    cost_test += model.getCost(rawframes_test[i*seq_len:(i+1)*seq_len, :], vels_test[i*seq_len:(i+1)*seq_len, :], labels_test[i*seq_len:(i+1)*seq_len, :])
   cost_test /= numseqs_test 
   cost_test /= squared_mean_test
 
@@ -188,10 +199,10 @@ while (1):
 
     # predictions
     for i in xrange(numseqs_train):
-      preds_train[i*seq_len:(i+1)*seq_len, :] = model.predict(rawframes_train[i*seq_len:(i+1)*seq_len, :])
+      preds_train[i*seq_len:(i+1)*seq_len, :] = model.predict(rawframes_train[i*seq_len:(i+1)*seq_len, :], vels_train[i*seq_len:(i+1)*seq_len, :])
 
     for i in xrange(numseqs_test/seq_len):
-      preds_test[i*seq_len:(i+1)*seq_len, :] = model.predict(rawframes_test[i*seq_len:(i+1)*seq_len, :])
+      preds_test[i*seq_len:(i+1)*seq_len, :] = model.predict(rawframes_test[i*seq_len:(i+1)*seq_len, :], vels_test[i*seq_len:(i+1)*seq_len, :])
 
     numpy.save(pred_path + 'preds_train', preds_train)
     numpy.save(pred_path + 'preds_test', preds_test)

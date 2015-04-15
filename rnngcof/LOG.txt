@@ -1,13 +1,7 @@
-initial time: 30.6
-# epoch: 1	cost_train: 1.02286181378	cost_test: 1.00615939693	learning_rate: 10.0	time: 113.1
-# epoch: 2	cost_train: 1.00288212115	cost_test: 1.00450587237	learning_rate: 10.0	time: 111.36
-# epoch: 3	cost_train: 0.999598041601	cost_test: 1.00215581457	learning_rate: 10.0	time: 111.1
-# epoch: 4	cost_train: 0.995151952568	cost_test: 0.998365495851	learning_rate: 10.0	time: 111.15
-# epoch: 5	cost_train: 0.989564978819	cost_test: 0.994044642766	learning_rate: 10.0	time: 111.11
-# epoch: 6	cost_train: 0.98388093107	cost_test: 0.990292813806	learning_rate: 10.0	time: 111.12
-# epoch: 7	cost_train: 0.978915922908	cost_test: 0.987370734139	learning_rate: 10.0	time: 111.03
-# epoch: 8	cost_train: 0.974778894994	cost_test: 0.985125609784	learning_rate: 10.0	time: 111.14
-# epoch: 9	cost_train: 0.971292202942	cost_test: 0.98330802864	learning_rate: 10.0	time: 111.14
-# epoch: 10	cost_train: 0.968268430327	cost_test: 0.98174885622	learning_rate: 10.0	time: 111.14
-# epoch: 11	cost_train: 0.965557071432	cost_test: 0.980351732559	learning_rate: 10.0	time: 111.12
-# epoch: 12	cost_train: 0.963041243286	cost_test: 0.97907766231	learning_rate: 10.0	time: 111.16
+time of loading data: 0.9
+time of computing velocity mappint units: 20.51
+time of initializing the model: 26.94
+# epoch: 1	cost_train: 1.02726465727	cost_test: 1.01242784961	learning_rate: 10.0	time: 95.17
+# epoch: 2	cost_train: 1.00810463404	cost_test: 1.01093981207	learning_rate: 10.0	time: 94.53
+# epoch: 3	cost_train: 1.00570008349	cost_test: 1.00919505983	learning_rate: 10.0	time: 93.92
+# epoch: 4	cost_train: 1.00280850996	cost_test: 1.00667026394	learning_rate: 10.0	time: 93.88
