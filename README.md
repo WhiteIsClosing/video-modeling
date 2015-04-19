@@ -3,6 +3,9 @@ This project is used to predict optical flow using recurrent neural networks (RN
 
 Currently, we provide the following models:
 * rnnl1: 1-hidden-layer RNN
+* rnnl2: 2-hidden-layer RNN
+* rnnl1gc: 1-hidden-layer RNN with grammar-cell mapping units as input
+* rnnl2gc: 2-hidden-layer RNN with grammar-cell mapping units as input
 
 ## Setup
 change the path_to_project_folder to the folder you store optical-flow-pred in 
