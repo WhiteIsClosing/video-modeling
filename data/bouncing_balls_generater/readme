@@ -1,0 +1,45 @@
+This is the implementation of the algorithm in the paper
+"Learning Multilevel Distributed Representations for High-Dimensional Sequences"
+by Ilya Sutskever and Geoffrey Hinton.
+
+To run it install ipython, numpy (version 1.0b5), and scipy (version 0.5.1). 
+This should probably make the code runnable. 
+
+To start the algorithm running, cd to the directory seq1_code and type on of
+the following to run the appropirate code:
+
+In [7]: import seq.tbm.run_aistats
+In [7]: import seq.tbm_HH.run_aistats
+In [7]: import seq.tbm_VV.run_aistats
+In [7]: import seq.tbm_VH.run_aistats
+
+Note that during the running of these functions, it is possible to interrupt 
+them using Ctrl-C, (so that, e.g., the sizes of the figures are changed)
+and then to type seq.tbm_VH.run_aistats.resume() to continue learning.
+
+A good idea is to do !rm */*_00_* */*_01_* from the seq1_code/seq directory after learning
+is complete, to save about 600M. 
+
+During learning, plots of the weihts will be shown (with frequency that
+can be modified by changing print_freq).
+The results of these runs will be saved in the corresponding directories. 
+To see them, do the following, while being in the directory seq1_code:
+
+from std import *
+from seq import *
+t0 = load('seq/tbm_HH/run_aistats_layer_is_02_and_epoch_is_0009999'); t1 = copy_trainer5(t0)
+
+to obtain a sample from a model type the following (may take 30 seconds, maybe a minute):
+
+show_seq(t1.gen_layer(layer))
+
+where layer can be 1, 2 or 3.  For the paper, we reported
+results of layers 1 and 2, but the algorithm as implemented trains the third
+layer 3 as well, so it can be sampled from and denoised with.
+
+To see the results of denoising, type the following:
+from seq.get_diff_balls_err import *
+
+show(make_image_comparison(t1))
+
+That's it. We hope that the program is sufficiently clear.  
