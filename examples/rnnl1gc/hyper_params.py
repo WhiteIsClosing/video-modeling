@@ -1,7 +1,7 @@
 ################################################################################
 # parameters defined by the user
 
-# INPUT PATH
+## INPUT PATH
 num_balls     = 1
 project_path  = '/deep/u/kuanfang/optical-flow-pred/'
 data_path     = project_path + 'data/bouncing_balls/'+ str(num_balls) + 'balls/' 
@@ -17,7 +17,7 @@ seq_len         = 5         # number of frames in a sequence
 ## MODEL PARAMETERS 
 hidden_size = 50    # size of the hidden layer
 
-# GRAMMAR CELL
+## GRAMMAR CELLS
 numfac    = 80      # dimension of the feature factors
 numvel    = 40      # dimension of the velocity units 
 numvelfac = 40      # dimension of the velocity factors
@@ -30,14 +30,15 @@ lr = 1.e1             # learning rate
 batch_size    = 1     # batch size in batched traning (useless for other cases)
 save_epoch    = 100   # epoch number to save (written over) model and prediction
 backup_epoch  = 1000  # epoch number to backup model and prediction
+pretrain_epoch = 200  # pretrain epochs
 
 en_shuffle  = True    # enable shuffling of the training data
 
 en_decay    = True    # enable learning rate decay
-max_decay   = 20      # after contiunous max_decay viloations, the lr will decay
+max_decay   = 10      # after contiunous max_decay viloations, the lr will decay
 epsl_decay  = 1e-4    # threashold of decaying the learning rate
 
-en_validate   = True  # enable validation phase
+en_validate   = False # enable validation phase
 epsl_validate = 0.    # threshold of reloading the model
 
 ## OUTPUT PATH

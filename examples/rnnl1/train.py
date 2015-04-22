@@ -30,13 +30,18 @@ logInfo.mark('time of initializing the model: ' + str(toc - tic))
 
 # LOAD DATA
 tic = clock()
-features_train_numpy, features_test_numpy = \
-  loadFrames(data_path, image_shape, numframes_train, numframes_test, seq_len)
-ofx_train, ofy_train, ofx_test,  ofy_test = \
-  loadOFs(data_path, image_shape, numframes_train, numframes_test, seq_len)
-labels_train = numpy.concatenate((ofx_train, ofy_train), axis = 1)
-labels_test = numpy.concatenate((ofx_test, ofy_test), axis = 1)
 
+features_train_numpy = \
+  loadFrames(data_path + 'train/', image_shape, numframes_train, seq_len)
+ofx_train, ofy_train = \
+  loadOFs(data_path + 'train/', image_shape, numframes_train, seq_len)
+labels_train = numpy.concatenate((ofx_train, ofy_train), axis = 1)
+
+features_test_numpy = \
+  loadFrames(data_path + 'test/', image_shape, numframes_test, seq_len)
+ofx_test, ofy_test = \
+  loadOFs(data_path + 'test/', image_shape, numframes_test, seq_len)
+labels_test = numpy.concatenate((ofx_test, ofy_test), axis = 1)
 
 # PREPROCESS
 data_mean = features_train_numpy.mean()
@@ -123,7 +128,7 @@ while (1):
 
 
   # LEARNING RATE DECAY
-  if (en_decay):
+  if (en_decay and epoch >= pretrain_epoch):
     if prev_cost - cur_cost <= epsl_decay:  # decay
       if decay <= 0:
         lr /= 2
@@ -136,7 +141,7 @@ while (1):
     
 
   # VALIDATE PHASE
-  if (en_validate):
+  if (en_validate and epoch >= pretrain_epoch):
     if prev_cost <= cur_cost + epsl_validate: # reload
       model.load(models_path + 'model.npy')
       cur_cost = prev_cost
@@ -145,8 +150,8 @@ while (1):
       # prev_cost = cur_cost
       model.save(models_path + 'model')
 
-
-  prev_cost = cur_cost   # also used by learning rate decay
+  if (epoch >= pretrain_epoch):
+    prev_cost = cur_cost   # also used by learning rate decay
 
 
   # SAVE MODEL

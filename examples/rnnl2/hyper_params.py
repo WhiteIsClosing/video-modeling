@@ -1,5 +1,5 @@
 ################################################################################
-# parameters defined by the user
+# Parameters defined by the user
 
 ## INPUT PATH
 num_balls     = 1
@@ -17,14 +17,6 @@ seq_len         = 5         # number of frames in a sequence
 ## MODEL PARAMETERS 
 hidden1_size = 100          # size of the hidden1 layer
 hidden2_size = 50           # size of the hidden2 layer
-
-## GRAMMAR CELLS
-numfac    = 80      # dimension of the feature factors
-numvel    = 40      # dimension of the velocity units 
-numvelfac = 40      # dimension of the velocity factors
-numacc    = 20      # dimension of the acceleration units
-numaccfac = 10      # dimension of the acceleration factors
-numjerk   = 10      # dimension of the jerk units
 
 ## OPTIMIZATION PARAMETERS
 lr = 1.e1             # learning rate
@@ -53,7 +45,7 @@ th_of     = 0.1                 # threashold to draw optical flows
 
 
 ################################################################################
-# parameters depend on above settings
+# Parameters depend on above settings
 
 ## DATA
 frame_dim = image_shape[0] * image_shape[1]   # data dimension of each frame
