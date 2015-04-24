@@ -28,7 +28,7 @@ en_shuffle  = True    # enable shuffling of the training data
 
 en_decay    = True    # enable learning rate decay
 max_decay   = 10      # after contiunous max_decay viloations, the lr will decay
-epsl_decay  = 1e-4    # threashold of decaying the learning rate
+epsl_decay  = 1e-5    # threashold of decaying the learning rate
 
 en_validate   = False # enable validation phase
 epsl_validate = 0.    # threshold of reloading the model

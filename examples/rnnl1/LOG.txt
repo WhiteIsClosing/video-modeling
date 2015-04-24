@@ -1,50 +1,11 @@
 model: 
-time of initializing the model: 17.12
-time of loading data: 0.77
+time of initializing the model: 15.68
+time of loading data: 0.67
 squared_mean_train: 0.0069625
 squared_mean_test: 0.00696384
-# epoch: 1	cost_train: 0.928631169917	cost_test: 0.761256708056	learning_rate: 10.0	time: 61.25
-# epoch: 2	cost_train: 0.747797283904	cost_test: 0.721645066485	learning_rate: 10.0	time: 59.93
-# epoch: 3	cost_train: 0.68017777031	cost_test: 0.633564922379	learning_rate: 10.0	time: 59.99
-# epoch: 4	cost_train: 0.600515638413	cost_test: 0.564318289221	learning_rate: 10.0	time: 59.95
-# epoch: 5	cost_train: 0.528847527337	cost_test: 0.490559282212	learning_rate: 10.0	time: 59.99
-# epoch: 6	cost_train: 0.47298248032	cost_test: 0.445865118896	learning_rate: 10.0	time: 59.96
-# epoch: 7	cost_train: 0.437722693898	cost_test: 0.41741730886	learning_rate: 10.0	time: 59.94
-# epoch: 8	cost_train: 0.414907491918	cost_test: 0.418673663357	learning_rate: 10.0	time: 59.82
-# epoch: 9	cost_train: 0.398580713876	cost_test: 0.400615721063	learning_rate: 10.0	time: 59.76
-# epoch: 10	cost_train: 0.384786656679	cost_test: 0.371313876733	learning_rate: 10.0	time: 59.78
-# epoch: 11	cost_train: 0.373230786531	cost_test: 0.371254491	learning_rate: 10.0	time: 59.61
-# epoch: 12	cost_train: 0.363320092975	cost_test: 0.363187146203	learning_rate: 10.0	time: 59.4
-# epoch: 13	cost_train: 0.354001484422	cost_test: 0.347187965283	learning_rate: 10.0	time: 59.44
-# epoch: 14	cost_train: 0.346924962227	cost_test: 0.34271958638	learning_rate: 10.0	time: 59.46
-# epoch: 15	cost_train: 0.340489218987	cost_test: 0.331544253485	learning_rate: 10.0	time: 59.42
-# epoch: 16	cost_train: 0.334857698683	cost_test: 0.335300847831	learning_rate: 10.0	time: 59.41
-# epoch: 17	cost_train: 0.330191254319	cost_test: 0.338884783343	learning_rate: 10.0	time: 59.38
-# epoch: 18	cost_train: 0.325822308449	cost_test: 0.321667798078	learning_rate: 10.0	time: 59.44
-# epoch: 19	cost_train: 0.322830880067	cost_test: 0.317302762667	learning_rate: 10.0	time: 59.41
-# epoch: 20	cost_train: 0.319373087709	cost_test: 0.321391542218	learning_rate: 10.0	time: 59.41
-# epoch: 21	cost_train: 0.316253418178	cost_test: 0.31412319803	learning_rate: 10.0	time: 59.47
-# epoch: 22	cost_train: 0.313950173174	cost_test: 0.320080536314	learning_rate: 10.0	time: 59.41
-# epoch: 23	cost_train: 0.311459118541	cost_test: 0.314470947821	learning_rate: 10.0	time: 59.42
-# epoch: 24	cost_train: 0.30945680357	cost_test: 0.304774957726	learning_rate: 10.0	time: 59.45
-# epoch: 25	cost_train: 0.307990397574	cost_test: 0.30257675829	learning_rate: 10.0	time: 59.45
-# epoch: 26	cost_train: 0.305752326539	cost_test: 0.305713706247	learning_rate: 10.0	time: 59.46
-# epoch: 27	cost_train: 0.304053528932	cost_test: 0.305362803593	learning_rate: 10.0	time: 59.42
-# epoch: 28	cost_train: 0.302436151661	cost_test: 0.306169397077	learning_rate: 10.0	time: 59.4
-# epoch: 29	cost_train: 0.301084078553	cost_test: 0.304459135832	learning_rate: 10.0	time: 59.4
-# epoch: 30	cost_train: 0.299577215813	cost_test: 0.29939867249	learning_rate: 10.0	time: 59.43
-# epoch: 31	cost_train: 0.298122329657	cost_test: 0.292628255088	learning_rate: 10.0	time: 59.4
-# epoch: 32	cost_train: 0.297175891587	cost_test: 0.297486973414	learning_rate: 10.0	time: 59.38
-# epoch: 33	cost_train: 0.296179664279	cost_test: 0.292786840745	learning_rate: 10.0	time: 59.43
-# epoch: 34	cost_train: 0.295027695687	cost_test: 0.293768083285	learning_rate: 10.0	time: 59.39
-# epoch: 35	cost_train: 0.293965790007	cost_test: 0.292169954199	learning_rate: 10.0	time: 59.42
-# epoch: 36	cost_train: 0.292805352189	cost_test: 0.294482230721	learning_rate: 10.0	time: 59.43
-# epoch: 37	cost_train: 0.2922047863	cost_test: 0.293647013894	learning_rate: 10.0	time: 59.38
-# epoch: 38	cost_train: 0.291437279609	cost_test: 0.280479094049	learning_rate: 10.0	time: 59.44
-# epoch: 39	cost_train: 0.290411767049	cost_test: 0.293722350979	learning_rate: 10.0	time: 59.41
-# epoch: 40	cost_train: 0.289818669797	cost_test: 0.289328863801	learning_rate: 10.0	time: 59.42
-# epoch: 41	cost_train: 0.28901964336	cost_test: 0.287870387341	learning_rate: 10.0	time: 59.4
-# epoch: 42	cost_train: 0.288391933774	cost_test: 0.287436973307	learning_rate: 10.0	time: 59.38
-# epoch: 43	cost_train: 0.287659534945	cost_test: 0.290151040977	learning_rate: 10.0	time: 59.4
-# epoch: 44	cost_train: 0.287246447435	cost_test: 0.288026076752	learning_rate: 10.0	time: 59.42
-# epoch: 45	cost_train: 0.286535829211	cost_test: 0.287954808944	learning_rate: 10.0	time: 59.43
+# epoch: 1	cost_train: 0.928631169917	cost_test: 0.761256708056	learning_rate: 10.0	time: 83.79
+# epoch: 2	cost_train: 0.747797283904	cost_test: 0.721645066485	learning_rate: 10.0	time: 82.79
+# epoch: 3	cost_train: 0.68017777031	cost_test: 0.633564922379	learning_rate: 10.0	time: 82.76
+# epoch: 4	cost_train: 0.600515638413	cost_test: 0.564318289221	learning_rate: 10.0	time: 83.71
+# epoch: 5	cost_train: 0.528847527337	cost_test: 0.490559282212	learning_rate: 10.0	time: 83.73
+Finished logging.
