@@ -96,8 +96,8 @@ class FGAE(object):
             self.fac_left = T.dot(self.dat_left, self.wfd_left.T)
             self.fac_right = T.dot(self.dat_right, self.wfd_right.T)
             self.premap =\
-                T.dot(self.fac_left * self.fac_right, self.wmf.T) + self.bm
-            self._map = T.nnet.sigmoid(self.premap)
+                T.dot(self.fac_left - self.fac_right, self.wmf.T) + self.bm
+            self._map = numpy.ones(dimmap) - T.nnet.sigmoid(self.premap)
             self.fac_map = T.dot(self._map, self.wmf)
             self._recons_left =\
                 T.dot(self.fac_right * self.fac_map, self.wfd_left) + self.bd
