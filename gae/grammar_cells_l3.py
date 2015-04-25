@@ -79,43 +79,46 @@ class GrammarCellsL3(object):
         ########################################################################
         """
         """
+        # initialization of the layers
         self.inputs = T.matrix(name='inputs') 
-        self._recons = [None] * self.seq_len_predict
 
         self._xs = [None] * self.seq_len_predict
         self._vels = [None] * self.seq_len_predict
         self._accs = [None] * self.seq_len_predict
         self._jerks = [None] * self.seq_len_predict
+        self._recons = [None] * self.seq_len_predict
 
-        #extract all input frames and project onto input/output filters: 
+        # extracting the input data
         for t in range(self.seq_len_predict):
             if t < self.seq_len_train:
                 self._xs[t] = self.inputs[:, t*dimx:(t+1)*dimx]
             else:
                 self._xs[t] = T.zeros((self._xs[0].shape[0], self.dimx)) 
 
-            if t>3:
-                self._xs[t] = self.corrupt(self._xs[t])
-
-            self._recons[t] = self._xs[t]
+            # if t>3:
+            #     self._xs[t] = self.corrupt(self._xs[t])
+            self._xs[t] = self.corrupt(self._xs[t])
+            
+            if t >= 0 and t <= 3:
+                self._recons[t] = self._xs[t]
 
         for t in range(4, self.seq_len_predict):
-            self._xfactors_left[t-4] = T.dot(self._recons[t-4], self.wfx_left)
-            self._xfactors_right[t-4] = T.dot(self._recons[t-4], self.wfx_right)
-            self._xfactors_left[t-3] = T.dot(self._recons[t-3], self.wfx_left)
-            self._xfactors_right[t-3] = T.dot(self._recons[t-3], self.wfx_right)
-            self._xfactors_left[t-2] = T.dot(self._recons[t-2], self.wfx_left)
-            self._xfactors_right[t-2] = T.dot(self._recons[t-2], self.wfx_right)
-            self._xfactors_left[t-1] = T.dot(self._recons[t-1], self.wfx_left)
-            self._xfactors_right[t-1] = T.dot(self._recons[t-1], self.wfx_right)
-            self._xfactors_left[t] = T.dot(self._recons[t], self.wfx_left)
-            self._xfactors_right[t] = T.dot(self._recons[t], self.wfx_right)
+            self._facx_left[t-4] = T.dot(self._recons[t-4], self.wfx_left)
+            self._facx_right[t-4] = T.dot(self._recons[t-4], self.wfx_right)
+            self._facx_left[t-3] = T.dot(self._recons[t-3], self.wfx_left)
+            self._facx_right[t-3] = T.dot(self._recons[t-3], self.wfx_right)
+            self._facx_left[t-2] = T.dot(self._recons[t-2], self.wfx_left)
+            self._facx_right[t-2] = T.dot(self._recons[t-2], self.wfx_right)
+            self._facx_left[t-1] = T.dot(self._recons[t-1], self.wfx_left)
+            self._facx_right[t-1] = T.dot(self._recons[t-1], self.wfx_right)
+            self._facx_left[t] = T.dot(self._recons[t], self.wfx_left)
+            self._facx_right[t] = T.dot(self._recons[t], self.wfx_right)
 
             #re-infer current velocities v12 and v23: 
-            self._prevel01 = T.dot(self._xfactors_left[t-4]*self._xfactors_right[t-3], self.wv)+self.bv
-            self._prevel12 = T.dot(self._xfactors_left[t-3]*self._xfactors_right[t-2], self.wv)+self.bv
-            self._prevel23 = T.dot(self._xfactors_left[t-2]*self._xfactors_right[t-1], self.wv)+self.bv
-            self._prevel34 = T.dot(self._xfactors_left[t-1]*self._xfactors_right[t  ], self.wv)+self.bv
+            self._prevel01 = T.dot(self._facx_left[t-4]*self._facx_right[t-3], self.wv)+self.bv
+            self._prevel12 = T.dot(self._facx_left[t-3]*self._facx_right[t-2], self.wv)+self.bv
+            self._prevel23 = T.dot(self._facx_left[t-2]*self._facx_right[t-1], self.wv)+self.bv
+            self._prevel34 = T.dot(self._facx_left[t-1]*self._facx_right[t  ], self.wv)+self.bv
 
             #re-infer acceleration a123: 
             self._preacc012 = T.dot(T.dot(T.nnet.sigmoid(self._prevel01), self.wfv_left)*T.dot(T.nnet.sigmoid(self._prevel12), self.wfv_right), self.wa)+self.ba

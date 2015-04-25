@@ -47,9 +47,6 @@ features_train_numpy = features_train_numpy[ \
 
 features_theano = theano.shared(features_train_numpy)
 
-solver = GraddescentMinibatch(model, features_theano, 
-                                batch_size=batch_size, learning_rate=lr)
-
 # INITIALIZATION
 model = FGAE(dimdat=dimdat,
                 dimfac=dimfac,
@@ -57,6 +54,9 @@ model = FGAE(dimdat=dimdat,
                 mode='reconstruct')
 
 logInfo.mark('... initialization done')
+
+solver = GraddescentMinibatch(model, features_theano, 
+                                batch_size=batch_size, learning_rate=lr)
 
 round = 0
 for epoch in xrange(max_epoch):

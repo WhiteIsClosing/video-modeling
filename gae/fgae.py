@@ -2,8 +2,9 @@ import numpy, pylab
 import theano
 import theano.tensor as T
 from theano.tensor.shared_randomstreams import RandomStreams
+from params import Params
 
-class FGAE(object):
+class FGAE(Params):
     """
     Factored Gated Autoencoder
     """
@@ -51,27 +52,32 @@ class FGAE(object):
             theano_rng = RandomStreams(1)
         #
         if wfd_left == None:
-            self.wfd_left = self.init_weight('wfd_left', (dimfac, dimdat))
+            self.wfd_left = self.init_param(size=(dimfac, dimdat), scale=.01,  
+                                        mode='n', name=self.name+':wfd_left')
         else:
             self.wfd_left = wfd_left
         #
         if wfd_right == None:
-            self.wfd_right = self.init_weight('wfd_right', (dimfac, dimdat))
+            self.wfd_right = self.init_param(size=(dimfac, dimdat), scale=.01,  
+                                        mode='n', name=self.name+':wfd_right')
         else:
             self.wfd_right = wfd_right
         #
         if wmf == None:
-            self.wmf = self.init_weight('wmf', (dimmap, dimfac))
+            self.wmf = self.init_param(size=(dimmap, dimfac), scale=.01,  
+                                        mode='n', name=self.name+':wmf')
         else:
             self.wmf = wmf
         #
         if bd == None:
-            self.bd = self.init_bias('bd', (dimdat)) 
+            self.bd = self.init_param(size=(dimdat), scale=0.,  
+                                        mode='r', name=self.name+':bd')
         else:
             self.bd = bd
         #
         if bm == None:
-            self.bm = self.init_bias('bm', (dimmap)) 
+            self.bm = self.init_param(size=(dimmap), scale=0.,  
+                                        mode='r', name=self.name+':bm')
         else:
             self.bm = bm
 
@@ -86,6 +92,7 @@ class FGAE(object):
         fac_right ::
         map ::
         """
+        
         if self.mode == 'reconstruct':
             # data layers
             self.inputs = T.matrix(name=self.name+':inputs') 
@@ -95,26 +102,31 @@ class FGAE(object):
             self.dat_right = self.inputs[:, dimdat:] 
             self.fac_left = T.dot(self.dat_left, self.wfd_left.T)
             self.fac_right = T.dot(self.dat_right, self.wfd_right.T)
-            self.premap =\
-                T.dot(self.fac_left * self.fac_right, self.wmf.T) + self.bm
-            self._map = T.nnet.sigmoid(self.premap)
-            self.fac_map = T.dot(self._map, self.wmf)
-            self._recons_left =\
-                T.dot(self.fac_right * self.fac_map, self.wfd_left) + self.bd
-            self._recons_right =\
-                T.dot(self.fac_left * self.fac_map, self.wfd_right) + self.bd
-            self._recons =\
-                T.concatenate((self._recons_left, self._recons_right), axis=1)
-            self._cost = T.mean((self._recons_left - self.dat_left)**2 +\
-                                (self._recons_right - self.dat_right)**2)
+            # self.map = self.infer(self.dat_left, self.dat_right, 
+            #             self.wfd_left, self.wfd_right, self.wmf, self.bm)
+            self.map = self.fac_infer(self.fac_left, self.fac_right, 
+                                        self.wmf, self.bm)
+            self.fac_map = T.dot(self.map, self.wmf)
+            self.recons_left =\
+                self.fac_predict(self.fac_right, self.fac_map, 
+                                    self.wfd_left, self.bd)
+                # self.predict(self.dat_right, self.map, 
+                #             self.wfd_right, self.wfd_left, self.wmf, self.bd)
+            self.recons_right =\
+                self.fac_predict(self.fac_left, self.fac_map, 
+                                    self.wfd_right, self.bd)
+                # self.predict(self.dat_left, self.map, 
+                #             self.wfd_left, self.wfd_right, self.wmf, self.bd)
+            self.recons =\
+                T.concatenate((self.recons_left, self.recons_right), axis=1)
+            self._cost = T.mean((self.recons_left - self.dat_left)**2 +\
+                                (self.recons_right - self.dat_right)**2)
             self._grads = T.grad(self._cost, self.params) 
             # functions
-            self.map = theano.function([self.dat_left, self.dat_right], 
-                                        self._map)
-            self.recons_left = theano.function([self.dat_left, self.dat_right],
-                                                    self._recons_left)
-            self.recons_right = theano.function([self.dat_left,self.dat_right],
-                                                    self._recons_right)
+            # self.recons_left = theano.function([self.dat_left, self.dat_right]
+            #                                         self.recons_left)
+            # self.recons_right = theano.function([self.dat_left,self.dat_right]
+            #                                         self.recons_right)
             # self.map = theano.function([self.self.inputs], self._map)
             # self.recons_left = theano.function([self.inputs], 
             #                                        self._recons_left)
@@ -122,85 +134,69 @@ class FGAE(object):
             #                                        self._recons_rith)
             self.cost = theano.function([self.inputs], self._cost)
             self.grads = theano.function([self.inputs], self._grads)
-            self.predict = theano.function([self.inputs], self._recons)
+            self.predict = theano.function([self.inputs], self.recons)
 
-        elif self.mode == 'map':
-            self.dat_left = T.matrix(name=self.name+':dat_left') 
-            self.dat_right = T.matrix(name=self.name+':dat_right') 
-            self.fac_left = T.dot(self.dat_left, self.wfd_left.T)
-            self.fac_right = T.dot(self.dat_right, self.wfd_right.T)
-            self.premap = T.dot(self.fac_left * self.fac_right, self.wmf.T)
-            self._map = T.nnet.sigmoid(self.premap)
-            self.map =\
-                theano.function([self.dat_left, self.dat_right], self._map)
+        # elif self.mode == 'map':
+        #     self.dat_left = T.matrix(name=self.name+':dat_left') 
+        #     self.dat_right = T.matrix(name=self.name+':dat_right') 
+        #     self.fac_left = T.dot(self.dat_left, self.wfd_left.T)
+        #     self.fac_right = T.dot(self.dat_right, self.wfd_right.T)
+        #     self.premap = T.dot(self.fac_left * self.fac_right, self.wmf.T)
+        #     self._map = T.nnet.sigmoid(self.premap)
+        #     self.map =\
+        #         theano.function([self.dat_left, self.dat_right], self._map)
 
-        elif self.mode == 'predict':
-            self.dat_left = T.matrix(name=self.name+':dat_left') 
-            self.map = T.matrix(name=self.name+':map')  
-            self.fac_left = T.dot(self.dat_left, self.wfd_left.T)
-            self.fac_map = T.dot(self.map, self.wmf)
-            self._dat_right =\
-                T.dot(self.fac_left * self.fac_map, self.wfd_right)
-            self.predict =\
-                theano.function([self.dat_left, self.map], self._dat_right)
+        # elif self.mode == 'predict':
+        #     self.dat_left = T.matrix(name=self.name+':dat_left') 
+        #     self.map = T.matrix(name=self.name+':map')  
+        #     self.fac_left = T.dot(self.dat_left, self.wfd_left.T)
+        #     self.fac_map = T.dot(self.map, self.wmf)
+        #     self._dat_right =\
+        #         T.dot(self.fac_left * self.fac_map, self.wfd_right)
+        #     self.predict =\
+        #         theano.function([self.dat_left, self.map], self._dat_right)
 
         else:
             raise Exception('\'' + str(mode) + '\' is not a premitted mode')
 
-    def init_weight(self, name, size, val=.01):
+    def fac_infer(self, fac_left, fac_right, wmf, bm):
         """
-        Utility function to initialize theano shared weights.
+        Infer the mapping unit given the left and right factors. 
         """
-        return theano.shared(value = val*self.numpy_rng.normal(size=size)\
-                      .astype(theano.config.floatX), name=self.name+':'+name)
+        premap = T.dot(fac_left * fac_right, wmf.T) + bm
+        map = T.nnet.sigmoid(premap)
+        return map
 
-    def init_bias(self, name, size, val=0.):
+    def fac_predict(self, fac_in, fac_map, wfd_out, bd):
         """
-        Utility function to initialize theano shared bias.
+        Predict one of the data given the factor of the other data and the 
+        mapping unit.
         """
-        return theano.shared(value = val*numpy.ones(size,
-                          dtype=theano.config.floatX), name=self.name+':'+name) 
+        dat_out = T.dot(fac_in * fac_map, wfd_out) + bd
+        return dat_out
 
-    def set_params(self, new_params):
+    def infer(self, dat_left, dat_right, wfd_left, wfd_right, wmf, bm):
         """
-        Set all values in self.params to new_params.
+        Infer the mapping unit given the left and right data. 
         """
+        fac_left = T.dot(dat_left, wfd_left.T)
+        fac_right = T.dot(dat_right, wfd_right.T)
+        premap = T.dot(fac_left * fac_right, wmf.T) + bm
+        map = T.nnet.sigmoid(premap)
+        return map
 
-        def inplace_update(x, new):
-            x[...] = new
-            return x
-
-        params_counter = 0
-        for p in self.params:
-            pshape = p.get_value().shape
-            pnum = numpy.prod(pshape)
-            p.set_value(inplace_update(p.get_value(borrow=True),
-                        new_params[params_counter:params_counter+pnum]\
-                        .reshape(*pshape)), borrow=True)
-            params_counter += pnum 
-        return
-
-    def get_params(self):
+    def predict(self, dat_in, map, wfd_in, wfd_out, wmf, bd):
         """
-        Return a concatenation of self.params. 
+        Predict one of the data given the another data and the mapping unit.
         """
-        return numpy.concatenate([p.get_value(borrow=False).flatten()
-                                    for p in self.params])
-
-    def save(self, filename):
-        """
-        Save self.params.
-        """
-        numpy.save(filename, self.get_params())
-
-    def load(self, filename):
-        """
-        Load self.params. 
-        """
-        self.set_params(numpy.load(filename))
+        fac_in = T.dot(dat_in, wfd_in.T)
+        fac_map = T.dot(map, wmf)
+        dat_out = T.dot(fac_in * fac_map, wfd_out) + bd
+        return dat_out
 
     def normalize_filters(self):
         """
+        Normalize filters. 
         """
         raise Exception('Not impleted yet. ')
 
