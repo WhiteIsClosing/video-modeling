@@ -4,10 +4,13 @@ source /deep/u/kuanfang/optical-flow-pred/scripts/config.sh
 
 if [ -d $visualization ] 
 then
-  echo $visualization 'exists'
-  mv $visualization $backup_root$visualization
+  rm -r $visualization
+  echo $visualization ' removed'
 fi
+
 mkdir $visualization
+mkdir $visualization'/wxf_left'
+mkdir $visualization'/wxf_right'
 mkdir $visualization'/train'
 mkdir $visualization'/train/pred_frames'
 mkdir $visualization'/train/pred_of'

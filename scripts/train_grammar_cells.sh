@@ -12,19 +12,19 @@ mkdir $backup
 if [ -f $logfile ] 
 then
   echo $logfile 'exists'
-  mv $logfile $backup_root$logfile 
+  mv $logfile $backup
 fi
 
 if [ -d $models ] 
 then
   echo $models 'exists'
-  mv $models $backup_root$models
+  mv $models $backup
 fi
 mkdir $models
 if [ -d $prediction ] 
 then
   echo $prediction 'exists'
-  mv $prediction $backup_root$prediction
+  mv $prediction $backup
 fi
 mkdir $prediction
 # mkdir $prediction'/train'
