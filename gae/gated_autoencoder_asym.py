@@ -4,14 +4,14 @@ import theano.tensor as T
 from theano.tensor.shared_randomstreams import RandomStreams
 from params import Params
 
-class GatedAutoencoder(Params):
+class GatedAutoencoderAsym(Params):
     """
-    Gated Autoencoder
+    Asymmetric Gated Autoencoder
     """
     def __init__(self, 
                     dimdat, dimfac, dimmap,
                     wfd_left=None, wfd_right=None, wmf=None,
-                    bd=None, bm=None,
+                    bd_left=None, bd_right=None, bm=None,
                     output_type='real', corrupt_type='none', corrupt_level=0.0, 
                     numpy_rng=None, theano_rng=None,
                     name=''):
@@ -55,39 +55,61 @@ class GatedAutoencoder(Params):
         bd :
         bm :
         """
-        #
-        if wfd_left == None:
-            self.wfd_left = self.init_param(size=(dimfac, dimdat), scale=.001,  
-                                        mode='n', name=self.name+':wfd_left')
-        else:
-            self.wfd_left = wfd_left
-        #
-        if wfd_right == None:
-            self.wfd_right = self.init_param(size=(dimfac, dimdat), scale=.001, 
-                                        mode='n', name=self.name+':wfd_right')
-        else:
-            self.wfd_right = wfd_right
-        #
-        if wmf == None:
-            self.wmf = self.init_param(size=(dimmap, dimfac), scale=[-3., -2.],
-                                        mode='u', name=self.name+':wmf')
-        else:
-            self.wmf = wmf
-        #
-        if bd == None:
-            self.bd = self.init_param(size=(dimdat), scale=0.,  
-                                        mode='r', name=self.name+':bd')
-        else:
-            self.bd = bd
-        #
-        if bm == None:
-            self.bm = self.init_param(size=(dimmap), scale=0.,  
-                                        mode='r', name=self.name+':bm')
-        else:
-            self.bm = bm
+        # #
+        # if wfd_left == None:
+        #     self.wfd_left = self.init_param(size=(dimfac, dimdat), scale=.001,  
+        #                                 mode='n', name=self.name+':wfd_left')
+        # else:
+        #     self.wfd_left = wfd_left
+        # #
+        # if wfd_right == None:
+        #     self.wfd_right = self.init_param(size=(dimfac, dimdat), scale=.001, 
+        #                                 mode='n', name=self.name+':wfd_right')
+        # else:
+        #     self.wfd_right = wfd_right
+        # #
+        # if wmf == None:
+        #     self.wmf = self.init_param(size=(dimmap, dimfac), scale=[-3., -2.],
+        #                                 mode='u', name=self.name+':wmf')
+        # else:
+        #     self.wmf = wmf
+        # #
+        # if bd_left == None:
+        #     self.bd_left = self.init_param(size=(dimdat), scale=0.,  
+        #                                 mode='r', name=self.name+':bd_left')
+        # else:
+        #     self.bd_left = bd_left
+        # #
+        # if bd_right == None:
+        #     self.bd_right = self.init_param(size=(dimdat), scale=0.,  
+        #                                 mode='r', name=self.name+':bd_right')
+        # else:
+        #     self.bd_right = bd_right
+        # #
+        # if bm == None:
+        #     self.bm = self.init_param(size=(dimmap), scale=0.,  
+        #                                 mode='r', name=self.name+':bm')
+        # else:
+        #     self.bm = bm
 
-        self.params =[self.wfd_left, self.wfd_right, self.wmf, self.bd, self.bm]
+        # self.params = [self.wfd_left, self.wfd_right, self.wmf, self.bd_left, 
+        #                 self.bd_right, self.bm]
 
+        wxf_init = numpy_rng.normal(size=(dimfac, dimdat)).astype(theano.config.floatX)*0.001
+        wyf_init = numpy_rng.normal(size=(dimfac, dimdat)).astype(theano.config.floatX)*0.001
+
+        self.whf_init = numpy.exp(numpy_rng.uniform(low=-3.0, high=-2.0, size=(dimmap, dimfac)).astype(theano.config.floatX))
+        # self.whf_in_init = numpy_rng.uniform(low=-0.01, high=+0.01, size=(nummap, numfac)).astype(theano.config.floatX)
+        self.wmf = theano.shared(value = self.whf_init, name='whf')
+        # self.whf_in = self.whf #theano.shared(value = self.whf_in_init, name='whf_in')
+        self.wfd_left = theano.shared(value = wxf_init, name = 'wxf')
+        self.bd_left = theano.shared(value = numpy.zeros(dimdat, dtype=theano.config.floatX), name='bvisX')
+        self.wfd_right = theano.shared(value = wyf_init, name = 'wyf')
+        self.bd_right = theano.shared(value = numpy.zeros(dimdat, dtype=theano.config.floatX), name='bvisY')
+        self.bm = theano.shared(value = 0.0*numpy.ones(dimmap, dtype=theano.config.floatX), name='bmap')
+        self.params = [self.wfd_left, self.wfd_right, self.wmf, self.bm, 
+                        self.bd_left, self.bd_right]
+        # self.params = [self.wxf, self.wyf, self.whf, self.bmap, self.bvisX, self.bvisY]
         # layers 
         ########################################################################
         """
@@ -104,30 +126,32 @@ class GatedAutoencoder(Params):
         dat_left = self.inputs[:, :dimdat] 
         dat_right = self.inputs[:, dimdat:] 
 
-        if corrupt_type != None:
-            dat_left = self.corrupt(dat_left, 
-                        self.corrupt_type, self.corrupt_level)
-            dat_right = self.corrupt(dat_right, 
-                        self.corrupt_type, self.corrupt_level)
+        # dat_left = self.corrupt(dat_left, 
+        #             self.corrupt_type, self.corrupt_level)
+        # dat_right = self.corrupt(dat_right, 
+        #             self.corrupt_type, self.corrupt_level)
             
         fac_left = T.dot(dat_left, self.wfd_left.T)
         fac_right = T.dot(dat_right, self.wfd_right.T)
-        map = self.fac_infer(fac_left, fac_right)
+        # map = self.fac_infer(fac_left, fac_right)
+        map = T.nnet.sigmoid(T.dot(fac_left * fac_right, self.wmf.T)+self.bm)
         fac_map = T.dot(map, self.wmf)
-        recons_left = self.fac_predict(fac_right, fac_map, 'l')
-        recons_right = self.fac_predict(fac_left, fac_map, 'r')
+        # recons_left = self.fac_predict(fac_right, fac_map, 'l')
+        # recons_right = self.fac_predict(fac_left, fac_map, 'r')
+        recons_left = T.dot(fac_left * fac_map, self.wfd_left) + self.bd_left
+        recons_right = T.dot(fac_left * fac_map, self.wfd_right) + self.bd_right
         recons = T.concatenate((recons_left, recons_right), axis=1)
 
+        # cost = T.mean((recons_left - self.inputs[:, :dimdat])**2 +\
+        #                     (recons_right - self.inputs[:, dimdat:])**2)
+        costpercase = T.sum(0.5*((inputs_left-recons_left)**2)
+                                 +0.5*((inputs_right-recons_right)**2), axis=1)
+        cost = T.mean(costpercase) 
 
-        costpercase = T.sum(0.5*((inputs_left - recons_left)**2)
-                             +0.5*((inputs_right - recons_right)**2), axis=1)
-        cost = T.mean((recons_left - self.inputs[:, :dimdat])**2 +\
-                            (recons_right - self.inputs[:, dimdat:])**2)
-        # cost = T.mean(costpercase) 
 
         grads = T.grad(cost, self.params) 
-        self.cost = cost 
-        self.grads = grads 
+        self._cost = cost 
+        self._grads = grads 
         # functions
         self.f_map = theano.function([self.inputs], map)
         self.f_recons = theano.function([self.inputs], recons)
@@ -174,9 +198,11 @@ class GatedAutoencoder(Params):
         """
         if dir == 'l':
             wfd_out = self.wfd_left
+            bd = self.bd_left
         else:
             wfd_out = self.wfd_right
-        dat_out = self._fac_predict(fac_in, fac_map, wfd_out, self.bd)
+            bd = self.bd_right
+        dat_out = self._fac_predict(fac_in, fac_map, wfd_out, bd)
         return dat_out
 
     def infer(self, dat_left, dat_right):
@@ -199,11 +225,13 @@ class GatedAutoencoder(Params):
         if dir == 'l':
             wfd_in = self.wfd_right
             wfd_out = self.wfd_left
+            bd = self.bd_left
         else:
             wfd_in = self.wfd_left
             wfd_out = self.wfd_right
+            bd = self.bd_right
         dat_out = self._fac_predict(dat_in, map, 
-                                    wfd_in, wfd_out, self.wmf, self.bd)
+                                    wfd_in, wfd_out, self.wmf, bd)
         return dat_out
 
     def _fac_infer(self, fac_left, fac_right, wmf, bm):
@@ -239,5 +267,6 @@ class GatedAutoencoder(Params):
         Normalize filters. 
         """
         raise Exception('Not impleted yet. ')
+
 
 
