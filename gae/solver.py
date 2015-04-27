@@ -39,18 +39,18 @@ class GraddescentMinibatch(object):
         self.n = T.scalar('n')
         self.noop = 0.0 * self.n
 
-        for _param, _grad in zip(self.model.params, self.model._grads):
-            self.inc_updates[self.incs[_param]] =\
-                self.momentum * self.incs[_param] - self.learning_rate * _grad 
-            self.updates[_param] = _param + self.incs[_param]
+        for param, grad in zip(self.model.params, self.model.grads):
+            self.inc_updates[self.incs[param]] =\
+                self.momentum * self.incs[param] - self.learning_rate * grad 
+            self.updates[param] = param + self.incs[param]
 
-        self._updateincs = theano.function([self.index], self.model._cost, 
+        self.updateincs = theano.function([self.index], self.model.cost, 
                                             updates = self.inc_updates,
                                             givens = {self.model.inputs:\
                                         self.data[self.index*self.batch_size:\
                                             (self.index+1)*self.batch_size]})
 
-        self._trainmodel = theano.function([self.n], self.noop, 
+        self.trainmodel = theano.function([self.n], self.noop, 
                                             updates = self.updates)
         if verbose:
             print '[GraddescentMinibatch Info]'
@@ -66,9 +66,9 @@ class GraddescentMinibatch(object):
         stepcount = 0.0
         for batch_index in self.rng.permutation(self.num_batch-1):
             stepcount += 1.0
-            upd = self._updateincs(batch_index)
+            upd = self.updateincs(batch_index)
             cost = (1.0-1.0/stepcount)*cost + (1.0/stepcount)*upd
-            self._trainmodel(0)
+            self.trainmodel(0)
             if self.normalize_filters:
                 self.model.normalize_filters()
         return cost

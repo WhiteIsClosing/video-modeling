@@ -16,17 +16,26 @@ class Params(object):
     def init_param(self, size, scale=.01, mode='n', name=''):
         """
         Utility function to initialize theano shared weights.
-        mode: 
-            'normal' for drawing from normal distribution, 
-            'uniform' for drawing from uniform distribution, 
-            'repetitive' for repeating same values in each element. 
+
+        Params
+        ------
+        mode: str 
+                'normal' or 'n' for drawing from normal distribution, 
+                'uniform' or 'u' for drawing from uniform distribution, 
+                'repetitive' or 'r' for repeating same values in each element. 
         """
         if mode == 'normal' or mode == 'n':
-            weight = theano.shared(value = scale*self.numpy_rng.normal(\
+            weight = theano.shared(value=scale*self.numpy_rng.normal(\
                         size=size).astype(theano.config.floatX), name=name)
         elif mode == 'uniform' or mode == 'u':
-            weight = theano.shared(value = scale*self.numpy_rng.uniform(\
-                        size=size).astype(theano.config.floatX), name=name)
+            if numpy.size(scale) == 1:
+                low = -scale
+                high = scale
+            elif numpy.size(scale) == 2:
+                low = scale[0]
+                high = scale[1]
+            weight = theano.shared(value=self.numpy_rng.uniform(size=size,
+                low=low, high=high).astype(theano.config.floatX), name=name)
         elif mode == 'repetitive' or mode == 'r':
             weight = theano.shared(value = scale*numpy.ones(size,
                         dtype=theano.config.floatX), name=name) 
