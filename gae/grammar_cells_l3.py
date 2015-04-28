@@ -18,6 +18,7 @@ class GrammarCellsL3(GatedAutoencoder):
                     vis_corrupt_type="zeromask", vis_corrupt_level=0.0, 
                     numpy_rng=None, theano_rng=None):
 
+        # random number generators
         if not numpy_rng:  
             self.numpy_rng = numpy.random.RandomState(1)
         else:
@@ -67,9 +68,11 @@ class GrammarCellsL3(GatedAutoencoder):
         self.bv = self.init_param((dimv), 0., 'r', 'bv')
         self.ba = self.init_param((dima), 0., 'r', 'ba')
         self.bj = self.init_param((dimj), 0., 'r', 'bj')
-        # self.autonomy = self.init_param(1, 0.5, 'r', 'autonomy')
-        self.autonomy = theano.shared(value=numpy.array([0.5]).\
-                        astype("float32"), name='autonomy') # TODO: init_param
+
+        self.autonomy = self.init_param(1, 0.5, 'r', 'autonomy')
+        # self.autonomy = theano.shared(value=numpy.array([0.5]).\
+        #                 astype("float32"), name='autonomy') # TODO: init_param
+
         self.params = [self.wfx_left, self.wfx_right, self.wv, 
                         self.wfv_left, self.wfv_right, self.wa, 
                         self.wfa_left, self.wfa_right, self.wj, 
@@ -95,8 +98,8 @@ class GrammarCellsL3(GatedAutoencoder):
         for t in range(self.seq_len):
             xs[t] = self.inputs[:, t*dimx:(t+1)*dimx]
 
-            # if t >= 4:
-            xs[t] = self.corrupt(xs[t], self.vis_corrupt_type, 
+            if t >= 4:
+                xs[t] = self.corrupt(xs[t], self.vis_corrupt_type, 
                                         self.vis_corrupt_level)
             
         # initial inference phase
@@ -127,10 +130,6 @@ class GrammarCellsL3(GatedAutoencoder):
         self.cost = cost
         self.grads = grads
 
-        self.debug_xs1 = theano.function([self.inputs], xs[1])
-        self.debug_vels1 = theano.function([self.inputs], vels[1])
-        self.debug_accs4 = theano.function([self.inputs], accs[4])
-        self.debug_vels4 = theano.function([self.inputs], vels[4])
         # interface functions
         self.f_preds = theano.function([self.inputs], preds)
         self.f_cost = theano.function([self.inputs], cost)

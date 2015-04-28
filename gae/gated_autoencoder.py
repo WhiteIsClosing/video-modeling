@@ -6,7 +6,7 @@ from params import Params
 
 class GatedAutoencoder(Params):
     """
-    Gated Autoencoder
+    Asymmetric Gated Autoencoder
     """
     def __init__(self, 
                     dimdat, dimfac, dimmap,
@@ -70,7 +70,7 @@ class GatedAutoencoder(Params):
         #
         if wmf == None:
             self.wmf = self.init_param(size=(dimmap, dimfac), scale=[-3., -2.],
-                                        mode='u', name=self.name+':wmf')
+                                        mode='lu', name=self.name+':wmf')
         else:
             self.wmf = wmf
         #
@@ -86,7 +86,8 @@ class GatedAutoencoder(Params):
         else:
             self.bm = bm
 
-        self.params =[self.wfd_left, self.wfd_right, self.wmf, self.bd, self.bm]
+        self.params = [self.wfd_left, self.wfd_right, self.wmf, self.bd,
+                        self.bm]
 
         # layers 
         ########################################################################
@@ -104,11 +105,10 @@ class GatedAutoencoder(Params):
         dat_left = self.inputs[:, :dimdat] 
         dat_right = self.inputs[:, dimdat:] 
 
-        if corrupt_type != None:
-            dat_left = self.corrupt(dat_left, 
-                        self.corrupt_type, self.corrupt_level)
-            dat_right = self.corrupt(dat_right, 
-                        self.corrupt_type, self.corrupt_level)
+        dat_left = self.corrupt(dat_left, 
+                    self.corrupt_type, self.corrupt_level)
+        dat_right = self.corrupt(dat_right, 
+                    self.corrupt_type, self.corrupt_level)
             
         fac_left = T.dot(dat_left, self.wfd_left.T)
         fac_right = T.dot(dat_right, self.wfd_right.T)
@@ -117,13 +117,9 @@ class GatedAutoencoder(Params):
         recons_left = self.fac_predict(fac_right, fac_map, 'l')
         recons_right = self.fac_predict(fac_left, fac_map, 'r')
         recons = T.concatenate((recons_left, recons_right), axis=1)
+        cost = T.mean(0.5*((inputs_left-recons_left)**2)
+                                 +0.5*((inputs_right-recons_right)**2))
 
-
-        costpercase = T.sum(0.5*((inputs_left - recons_left)**2)
-                             +0.5*((inputs_right - recons_right)**2), axis=1)
-        cost = T.mean((recons_left - self.inputs[:, :dimdat])**2 +\
-                            (recons_right - self.inputs[:, dimdat:])**2)
-        # cost = T.mean(costpercase) 
 
         grads = T.grad(cost, self.params) 
         self.cost = cost 
@@ -239,5 +235,6 @@ class GatedAutoencoder(Params):
         Normalize filters. 
         """
         raise Exception('Not impleted yet. ')
+
 
 

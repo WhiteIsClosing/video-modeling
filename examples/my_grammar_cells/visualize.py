@@ -52,7 +52,7 @@ model = GrammarCellsL3(\
 
 print '... initialization done'
 
-model.load(models_path + 'model_corrupted.npy')
+model.load(models_path + 'model.npy')
 
 
 # PLOT FILTER PAIRS

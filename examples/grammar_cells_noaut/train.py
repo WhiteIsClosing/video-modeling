@@ -17,7 +17,7 @@ from utils.load import *
 from utils.log import *
 
 from grammar_cells.gatedAutoencoder import *
-from grammar_cells.pgp3layer import *
+from grammar_cells.pgp3layer_noaut import *
 from grammar_cells.solver import *
 
 
@@ -163,7 +163,6 @@ model.bx.set_value(numpy.concatenate( \
 (pretrain_model_velocity.bvisX.get_value(), \
 numpy.zeros((model.numnote),dtype="float32"))))
 
-model.autonomy.set_value(numpy.array([0.5], dtype="float32"))
 
 toc = clock()
 logInfo.mark('time of initializing the model: ' + str(toc - tic))
@@ -185,7 +184,6 @@ while (1):
     cost = trainer.step()
     toc_e = clock()
     logInfo.mark('# epoch: '+str(epoch) + '\tcost: '+str(cost) + '\tlearning_rate: ' + str(lr_t) + '\ttime: ' + str(toc_e-tic_e))
-    #model.autonomy.set_value(numpy.array([0.5], dtype="float32"))
     if (epoch+1) % epoch_temp_save == 0:
       model.save(models_path + 'model_temp')
       # pred_frames_train = model.predict(features_train_numpy, pred_len)
@@ -201,7 +199,6 @@ while (1):
     cost = trainer.step()
     toc_e = clock()
     logInfo.mark('# epoch: '+str(epoch) + '\tcost: '+str(cost) + '\tlearning_rate: ' + str(lr_t) + '\ttime: ' + str(toc_e-tic_e))
-    #model.autonomy.set_value(numpy.array([0.5], dtype="float32"))
     if (epoch+1) % epoch_temp_save == 0:
       model.save(models_path + 'model_temp')
       # pred_frames_train = model.predict(features_train_numpy, pred_len)
@@ -218,10 +215,10 @@ while (1):
   model.save(models_path + 'model')
   model.save(models_path + 'model_' + str(idx))
 
-  pred_frames_train = model.predict(features_train_numpy, pred_len)
-  numpy.save(pred_path + 'pred_frames_train', pred_frames_train)
-  pred_frames_test = model.predict(features_test_numpy, pred_len)
-  numpy.save(pred_path + 'pred_frames_test', pred_frames_test)
+  # pred_frames_train = model.predict(features_train_numpy, pred_len)
+  # numpy.save(pred_path + 'pred_frames_train', pred_frames_train)
+  # pred_frames_test = model.predict(features_test_numpy, pred_len)
+  # numpy.save(pred_path + 'pred_frames_test', pred_frames_test)
 
   cost_test = model.cost(features_test_numpy)
   logInfo.mark('saved model @ ' + models_path + 'cost_test: ' + str(cost_test))

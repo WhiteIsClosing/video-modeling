@@ -5,13 +5,14 @@
 num_balls     = 1
 project_path  = '/deep/u/kuanfang/optical-flow-pred/'
 data_path     = project_path + 'data/bouncing_balls/'+ str(num_balls) + 'balls/'
+gc_path       = project_path + 'data/grammar_cells/' + str(num_balls) + 'balls/'
 
 ## DATA
 image_suffix    = '.jpeg'   # suffix to load/store images
 image_shape     = (16, 16)  # size of single channel images
-numframes_train = 50000     # number of frames to train in each epoch
-numframes_test  = 10000     # number of frames to validate in each epoch
-seq_len         = 10         # number of frames in a sequence
+numframes_train = 49000     # number of frames to train in each epoch
+numframes_test  = 7000     # number of frames to validate in each epoch
+seq_len         = 7         # number of frames in a sequence
 
 ## GRAMMAR CELL
 numfac    = 80      # dimension of the feature factors

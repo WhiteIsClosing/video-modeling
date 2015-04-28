@@ -6,12 +6,12 @@ from params import Params
 
 class GatedAutoencoder(Params):
     """
-    Factored Gated Autoencoder
+    Asymmetric Gated Autoencoder
     """
     def __init__(self, 
                     dimdat, dimfac, dimmap,
-                    wdf_left=None, wdf_right=None, wmf=None,
-                    bd_left=None, bd_right=None, bm=None,
+                    wfd_left=None, wfd_right=None, wmf=None,
+                    bd=None, bm=None,
                     output_type='real', corrupt_type='none', corrupt_level=0.0, 
                     numpy_rng=None, theano_rng=None,
                     name=''):
@@ -49,42 +49,36 @@ class GatedAutoencoder(Params):
         # trainable parameters
         ########################################################################
         """
-        wdf_left :
-        wdf_right :
+        wfd_left :
+        wfd_right :
         wmf :
         bd :
         bm :
         """
         #
-        if wdf_left == None:
-            self.wdf_left = self.init_param(size=(dimdat, dimfac), scale=.01,  
-                                        mode='n', name=self.name+':wdf_left')
+        if wfd_left == None:
+            self.wfd_left = self.init_param(size=(dimfac, dimdat), scale=.001,  
+                                        mode='n', name=self.name+':wfd_left')
         else:
-            self.wdf_left = wdf_left
+            self.wfd_left = wfd_left
         #
-        if wdf_right == None:
-            self.wdf_right = self.init_param(size=(dimdat, dimfac), scale=.01,  
-                                        mode='n', name=self.name+':wdf_right')
+        if wfd_right == None:
+            self.wfd_right = self.init_param(size=(dimfac, dimdat), scale=.001, 
+                                        mode='n', name=self.name+':wfd_right')
         else:
-            self.wdf_right = wdf_right
+            self.wfd_right = wfd_right
         #
         if wmf == None:
-            self.wmf = self.init_param(size=(dimmap, dimfac), scale=[-3., -2.], 
-                                        mode='u', name=self.name+':wmf')
+            self.wmf = self.init_param(size=(dimmap, dimfac), scale=.001,
+                                        mode='n', name=self.name+':wmf')
         else:
             self.wmf = wmf
         #
-        if bd_left == None:
-            self.bd_left = self.init_param(size=(dimdat), scale=0.,  
-                                        mode='r', name=self.name+':bd_left')
+        if bd == None:
+            self.bd = self.init_param(size=(dimdat), scale=0.,  
+                                        mode='r', name=self.name+':bd')
         else:
-            self.bd_left = bd_left
-        #
-        if bd_right == None:
-            self.bd_right = self.init_param(size=(dimdat), scale=0.,  
-                                        mode='r', name=self.name+':bd_right')
-        else:
-            self.bd_right = bd_right
+            self.bd = bd
         #
         if bm == None:
             self.bm = self.init_param(size=(dimmap), scale=0.,  
@@ -92,8 +86,8 @@ class GatedAutoencoder(Params):
         else:
             self.bm = bm
 
-        self.params =   [self.wdf_left, self.wdf_right, self.wmf, self.bm,
-                        self.bd_left, self.bd_right]
+        self.params = [self.wfd_left, self.wfd_right, self.wmf, self.bd,
+                        self.bm]
 
         # layers 
         ########################################################################
@@ -106,24 +100,36 @@ class GatedAutoencoder(Params):
         """
         
         self.inputs = T.matrix(name=self.name+':inputs') 
+        inputs_left = self.inputs[:, :dimdat] 
+        inputs_right = self.inputs[:, dimdat:] 
         dat_left = self.inputs[:, :dimdat] 
         dat_right = self.inputs[:, dimdat:] 
 
-        if corrupt_type != None:
-            dat_left = self.corrupt(dat_left, 
-                        self.corrupt_type, self.corrupt_level)
-            dat_right = self.corrupt(dat_right, 
-                        self.corrupt_type, self.corrupt_level)
+        dat_left = self.corrupt(dat_left, 
+                    self.corrupt_type, self.corrupt_level)
+        dat_right = self.corrupt(dat_right, 
+                    self.corrupt_type, self.corrupt_level)
             
-        fac_left = T.dot(dat_left, self.wdf_left)
-        fac_right = T.dot(dat_right, self.wdf_right)
+        fac_left = T.dot(dat_left, self.wfd_left.T)
+        fac_right = T.dot(dat_right, self.wfd_right.T)
         map = self.fac_infer(fac_left, fac_right)
+        # map = T.nnet.sigmoid(T.dot(fac_left * fac_right, self.wmf.T)+self.bm)
         fac_map = T.dot(map, self.wmf)
         recons_left = self.fac_predict(fac_right, fac_map, 'l')
         recons_right = self.fac_predict(fac_left, fac_map, 'r')
+        # recons_left = T.dot(fac_left * fac_map, self.wfd_left) + self.bd
+        # recons_right = T.dot(fac_left * fac_map, self.wfd_right) + self.bd
         recons = T.concatenate((recons_left, recons_right), axis=1)
-        cost = T.mean((recons_left - self.inputs[:, :dimdat])**2 +\
-                            (recons_right - self.inputs[:, dimdat:])**2)
+
+        # cost = T.mean((recons_left - self.inputs[:, :dimdat])**2 +\
+        #                     (recons_right - self.inputs[:, dimdat:])**2)
+        cost = T.mean(0.5*((inputs_left-recons_left)**2)
+                                 +0.5*((inputs_right-recons_right)**2))
+        # costpercase = T.sum(0.5*((inputs_left-recons_left)**2)
+        #                          +0.5*((inputs_right-recons_right)**2), axis=1)
+        # cost = T.mean(costpercase) 
+
+
         grads = T.grad(cost, self.params) 
         self._cost = cost 
         self._grads = grads 
@@ -172,12 +178,10 @@ class GatedAutoencoder(Params):
             Direction of the prediction, 'l' for left and 'r' for right.
         """
         if dir == 'l':
-            wdf_out = self.wdf_left
-            bd = self.bd_left
+            wfd_out = self.wfd_left
         else:
-            wdf_out = self.wdf_right
-            bd = self.bd_right
-        dat_out = self._fac_predict(fac_in, fac_map, wdf_out, bd)
+            wfd_out = self.wfd_right
+        dat_out = self._fac_predict(fac_in, fac_map, wfd_out, self.bd)
         return dat_out
 
     def infer(self, dat_left, dat_right):
@@ -185,7 +189,7 @@ class GatedAutoencoder(Params):
         Infer the mapping unit given the left and right data. 
         """
         map = self._infer(dat_left, dat_right, 
-                            self.wdf_left, self. wdf_right, self.wmf, self.bm)
+                            self.wfd_left, self. wfd_right, self.wmf, self.bm)
         return map
 
     def predict(self, dat_in, map, dir='r'):
@@ -198,15 +202,13 @@ class GatedAutoencoder(Params):
             Direction of the prediction, 'l' for left and 'r' for right.
         """
         if dir == 'l':
-            wdf_in = self.wdf_right
-            wdf_out = self.wdf_left
-            bd = self.bd_left
+            wfd_in = self.wfd_right
+            wfd_out = self.wfd_left
         else:
-            wdf_in = self.wdf_left
-            wdf_out = self.wdf_right
-            bd = self.bd_right
+            wfd_in = self.wfd_left
+            wfd_out = self.wfd_right
         dat_out = self._fac_predict(dat_in, map, 
-                                    wdf_in, wdf_out, self.wmf, bd)
+                                    wfd_in, wfd_out, self.wmf, self.bd)
         return dat_out
 
     def _fac_infer(self, fac_left, fac_right, wmf, bm):
@@ -215,26 +217,26 @@ class GatedAutoencoder(Params):
         map = T.nnet.sigmoid(premap)
         return map
 
-    def _fac_predict(self, fac_in, fac_map, wdf_out, bd):
+    def _fac_predict(self, fac_in, fac_map, wfd_out, bd):
         "Called by self.predict()."
-        dat_out = T.dot(fac_in * fac_map, wdf_out) + bd
+        dat_out = T.dot(fac_in * fac_map, wfd_out) + bd
         return dat_out
 
-    def _infer(self, dat_left, dat_right, wdf_left, wdf_right, wmf, bm):
+    def _infer(self, dat_left, dat_right, wfd_left, wfd_right, wmf, bm):
         "Called by self.infer()."
-        fac_left = T.dot(dat_left, wdf_left)
-        fac_right = T.dot(dat_right, wdf_right)
+        fac_left = T.dot(dat_left, wfd_left.T)
+        fac_right = T.dot(dat_right, wfd_right.T)
         # premap = T.dot(fac_left * fac_right, wmf.T) + bm
         # map = T.nnet.sigmoid(premap)
         map = self._fac_infer(fac_left, fac_right, wmf, bm)
         return map
 
-    def _predict(self, dat_in, map, wdf_in, wdf_out, wmf, bd):
+    def _predict(self, dat_in, map, wfd_in, wfd_out, wmf, bd):
         "Called by self.predict()."
-        fac_in = T.dot(dat_in, wdf_in)
+        fac_in = T.dot(dat_in, wfd_in.T)
         fac_map = T.dot(map, wmf)
-        # dat_out = T.dot(fac_in * fac_map, wdf_out) + bd
-        dat_out = self._fac_predict(fac_in, fac_map, wdf_out, bd)
+        # dat_out = T.dot(fac_in * fac_map, wfd_out) + bd
+        dat_out = self._fac_predict(fac_in, fac_map, wfd_out, bd)
         return dat_out
 
     def normalize_filters(self):
@@ -242,5 +244,6 @@ class GatedAutoencoder(Params):
         Normalize filters. 
         """
         raise Exception('Not impleted yet. ')
+
 
 

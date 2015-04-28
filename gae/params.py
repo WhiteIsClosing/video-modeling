@@ -15,17 +15,19 @@ class Params(object):
 
     def init_param(self, size, scale=.01, mode='n', name=''):
         """
-        Utility function to initialize theano shared weights.
+        Utility function to initialize theano shared params.
 
         Params
         ------
         mode: str 
                 'normal' or 'n' for drawing from normal distribution, 
                 'uniform' or 'u' for drawing from uniform distribution, 
+                'log-uniform' or 'lu' for drawing from log uniform 
+                distribution, 
                 'repetitive' or 'r' for repeating same values in each element. 
         """
         if mode == 'normal' or mode == 'n':
-            weight = theano.shared(value=scale*self.numpy_rng.normal(\
+            param = theano.shared(value=scale*self.numpy_rng.normal(
                         size=size).astype(theano.config.floatX), name=name)
         elif mode == 'uniform' or mode == 'u':
             if numpy.size(scale) == 1:
@@ -34,14 +36,18 @@ class Params(object):
             elif numpy.size(scale) == 2:
                 low = scale[0]
                 high = scale[1]
-            weight = theano.shared(value=self.numpy_rng.uniform(size=size,
+            param = theano.shared(value=self.numpy_rng.uniform(size=size,
                 low=low, high=high).astype(theano.config.floatX), name=name)
+        elif mode == 'log-uniform' or mode == 'lu':
+            param = theano.shared(value=numpy.exp(self.numpy_rng.uniform(
+                                    low=scale[0], high=scale[1], size=size).\
+                                    astype(theano.config.floatX)), name=name)
         elif mode == 'repetitive' or mode == 'r':
-            weight = theano.shared(value = scale*numpy.ones(size,
+            param = theano.shared(value = scale*numpy.ones(size,
                         dtype=theano.config.floatX), name=name) 
         else:
             raise Exception('\''+str(mode)+'\'' + ' is not a valid mode. ')
-        return weight  
+        return param  
 
     def set_params(self, new_params):
         """
