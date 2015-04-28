@@ -7,7 +7,7 @@ from gated_autoencoder import *
 
 class GrammarCellsL3(GatedAutoencoder):
     """
-    3-layer Grammar Cells
+    3-layer grammar cells
     """
     def __init__(self, 
                     dimx, dimfacx, 
@@ -15,10 +15,9 @@ class GrammarCellsL3(GatedAutoencoder):
                     dima, dimfaca, 
                     dimj, 
                     seq_len, output_type='real', coststart=4, 
-                    corrupt_type="zeromask", corrupt_level=0.0, 
+                    vis_corrupt_type="zeromask", vis_corrupt_level=0.0, 
                     numpy_rng=None, theano_rng=None):
 
-        # random number generators
         if not numpy_rng:  
             self.numpy_rng = numpy.random.RandomState(1)
         else:
@@ -45,37 +44,35 @@ class GrammarCellsL3(GatedAutoencoder):
         self.output_type = output_type
         self.coststart = coststart
 
-        self.corrupt_type = corrupt_type
-        self.corrupt_level =\
-            theano.shared(value=numpy.array([corrupt_level]), 
-                                                name='corrupt_level')
+        self.vis_corrupt_type = vis_corrupt_type
+        self.vis_corrupt_level =\
+            theano.shared(value=numpy.array([vis_corrupt_level]), 
+                                                name='vis_corrupt_level')
 
         # trainable parameters
         ########################################################################
         """
         """
-        self.wfx_left = self.init_param((dimfacx, dimx), .01, 'n', 'wfx_left') 
-        self.wfx_right = self.init_param((dimfacx, dimx), .01, 'n', 'wfx_right')
-        self.wv = self.init_param((dimv, dimfacx), .01, 'u', 'wv')
-        self.wfv_left = self.init_param((dimfacv, dimv), .01, 'u', 'wfv_left') 
-        self.wfv_right = self.init_param((dimfacv, dimv), .01, 'u', 'wfv_right')
-        self.wa = self.init_param((dima, dimfacv), .01, 'u', 'wa')
-        self.wfa_left = self.init_param((dimfaca, dima), .01, 'u', 'wfa_left') 
-        self.wfa_right = self.init_param((dimfaca, dima), .01, 'u', 'wfa_right')
-        self.wj = self.init_param((dimj, dimfaca), .01, 'u', 'wj')
+        self.wxf_left = self.init_param((dimx, dimfacx), .01, 'n', 'wxf_left') 
+        self.wxf_right = self.init_param((dimx, dimfacx), .01, 'n', 'wxf_right')
+        self.wv = self.init_param((dimfacx, dimv), .01, 'u', 'wv')
+        self.wvf_left = self.init_param((dimv, dimfacv), .01, 'u', 'wvf_left') 
+        self.wvf_right = self.init_param((dimv, dimfacv), .01, 'u', 'wvf_right')
+        self.wa = self.init_param((dimfacv, dima), .01, 'u', 'wa')
+        self.waf_left = self.init_param((dima, dimfaca), .01, 'u', 'waf_left') 
+        self.waf_right = self.init_param((dima, dimfaca), .01, 'u', 'waf_right')
+        self.wj = self.init_param((dimfaca, dimj), .01, 'u', 'wj')
 
         self.bx = self.init_param((dimx), 0., 'r', 'bx')
         self.bv = self.init_param((dimv), 0., 'r', 'bv')
         self.ba = self.init_param((dima), 0., 'r', 'ba')
         self.bj = self.init_param((dimj), 0., 'r', 'bj')
-
-        self.autonomy = self.init_param(1, 0.5, 'r', 'autonomy')
-        # self.autonomy = theano.shared(value=numpy.array([0.5]).\
-        #                 astype("float32"), name='autonomy') # TODO: init_param
-
-        self.params = [self.wfx_left, self.wfx_right, self.wv, 
-                        self.wfv_left, self.wfv_right, self.wa, 
-                        self.wfa_left, self.wfa_right, self.wj, 
+        # self.autonomy = self.init_param(1, 0.5, 'r', 'autonomy')
+        self.autonomy = theano.shared(value=numpy.array([0.5]).\
+                        astype("float32"), name='autonomy') # TODO: init_param
+        self.params = [self.wxf_left, self.wxf_right, self.wv, 
+                        self.wvf_left, self.wvf_right, self.wa, 
+                        self.waf_left, self.waf_right, self.wj, 
                         self.bx, self.bv, self.ba, self.bj]#, 
                         # self.autonomy]
 
@@ -96,11 +93,17 @@ class GrammarCellsL3(GatedAutoencoder):
 
         # extracting the input data
         for t in range(self.seq_len):
-            xs[t] = self.inputs[:, t*dimx:(t+1)*dimx]
+            if t < self.seq_len:
+                xs[t] = self.inputs[:, t*dimx:(t+1)*dimx]
+            else:
+                xs[t] = T.zeros((self._xs[0].shape[0], self.dimx)) 
 
-            if t >= 4:
-                xs[t] = self.corrupt(xs[t], self.corrupt_type, 
-                                        self.corrupt_level)
+            # if t>3:
+            #     self._xs[t] = self.corrupt(self._xs[t])
+            if self.vis_corrupt_type != None:
+                xs[t] = self.corrupt(xs[t], self.vis_corrupt_type, 
+                                        self.vis_corrupt_level)
+            # recons[t] = xs[t]
             
         # initial inference phase
         for t in range(4):
@@ -124,14 +127,17 @@ class GrammarCellsL3(GatedAutoencoder):
             recons[t]   = self.predict(recons[t-1], vels[t], level=1)
 
         preds = T.concatenate([pred for pred in recons], axis=1)
-
         cost = T.mean((preds[coststart:] - self.inputs[coststart:])**2)
         grads = T.grad(cost, self.params)
 
         self.cost = cost
         self.grads = grads
 
-        # functions
+        self.debug_xs1 = theano.function([self.inputs], xs[1])
+        self.debug_vels1 = theano.function([self.inputs], vels[1])
+        self.debug_accs4 = theano.function([self.inputs], accs[4])
+        self.debug_vels4 = theano.function([self.inputs], vels[4])
+        # interface functions
         self.f_preds = theano.function([self.inputs], preds)
         self.f_cost = theano.function([self.inputs], cost)
         self.f_grads = theano.function([self.inputs], grads)
@@ -161,18 +167,18 @@ class GrammarCellsL3(GatedAutoencoder):
             The level of the output predicted data.
         """
         if level == 1:
-            wmf = self.wv
+            wfm = self.wv
             bm = self.bv
         elif level == 2:
-            wmf = self.wa
+            wfm = self.wa
             bm = self.ba
         elif level == 3:
-            wmf = self.wj
+            wfm = self.wj
             bm = self.bj
         else:
             raise Exception('\'' + str(level) + '\' is not a valid level')
 
-        map = self._fac_infer(fac_left, fac_right, wmf, bm)
+        map = self._fac_infer(fac_left, fac_right, wfm, bm)
         return map
 
     def fac_predict(self, fac_in, fac_map, level, dir='r'):
@@ -189,26 +195,26 @@ class GrammarCellsL3(GatedAutoencoder):
         """
         if level == 1:
             if dir == 'l':
-                wfd_out = self.wfx_left
+                wdf_out = self.wxf_left
             else:
-                wfd_out = self.wfx_right
+                wdf_out = self.wxf_right
             bd = self.bx
         elif level == 2:
             if dir == 'l':
-                wfd_out = self.wfv_left
+                wdf_out = self.wvf_left
             else:
-                wfd_out = self.wfv_right
+                wdf_out = self.wvf_right
             bd = self.bv
         elif level == 3:
             if dir == 'l':
-                wfd_out = self.wfa_left
+                wdf_out = self.waf_left
             else:
-                wfd_out = self.wfa_right
+                wdf_out = self.waf_right
             bd = self.ba
         else:
             raise Exception('\'' + str(level) + '\' is not a valid level')
 
-        dat_out = self._fac_predict(fac_in, fac_map, wfd_out, bd)
+        dat_out = self._fac_predict(fac_in, fac_map, wdf_out, bd)
         return dat_out
 
     def infer(self, dat_left, dat_right, level):
@@ -221,24 +227,24 @@ class GrammarCellsL3(GatedAutoencoder):
             The level of the output predicted data.
         """
         if level == 1:
-            wfd_left = self.wfx_left
-            wfd_right = self.wfx_right
-            wmf = self.wv
+            wdf_left = self.wxf_left
+            wdf_right = self.wxf_right
+            wfm = self.wv
             bm = self.bv
         elif level == 2:
-            wfd_left = self.wfv_left
-            wfd_right = self.wfv_right
-            wmf = self.wa
+            wdf_left = self.wvf_left
+            wdf_right = self.wvf_right
+            wfm = self.wa
             bm = self.ba
         elif level == 3:
-            wfd_left = self.wfa_left
-            wfd_right = self.wfa_right
-            wmf = self.wj
+            wdf_left = self.waf_left
+            wdf_right = self.waf_right
+            wfm = self.wj
             bm = self.bj
         else:
             raise Exception('\'' + str(level) + '\' is not a valid level')
 
-        map = self._infer(dat_left, dat_right, wfd_left, wfd_right, wmf, bm)
+        map = self._infer(dat_left, dat_right, wdf_left, wdf_right, wfm, bm)
         return map
 
     def predict(self, dat_in, map, level, dir='r'):
@@ -254,33 +260,33 @@ class GrammarCellsL3(GatedAutoencoder):
         """
         if level == 1:
             if dir == 'l':
-                wfd_in = self.wfx_right
-                wfd_out = self.wfx_left
+                wdf_in = self.wxf_right
+                wdf_out = self.wxf_left
             else:
-                wfd_in = self.wfx_left
-                wfd_out = self.wfx_right
-            wmf = self.wv
+                wdf_in = self.wxf_left
+                wdf_out = self.wxf_right
+            wfm = self.wv
             bd = self.bx
         elif level == 2:
             if dir == 'l':
-                wfd_in = self.wfv_right
-                wfd_out = self.wfv_left
+                wdf_in = self.wvf_right
+                wdf_out = self.wvf_left
             else:
-                wfd_in = self.wfv_left
-                wfd_out = self.wfv_right
-            wmf = self.wa
+                wdf_in = self.wvf_left
+                wdf_out = self.wvf_right
+            wfm = self.wa
             bd = self.bv
         elif level == 3:
             if dir == 'l':
-                wfd_in = self.wfa_right
-                wfd_out = self.wfa_left
+                wdf_in = self.waf_right
+                wdf_out = self.waf_left
             else:
-                wfd_in = self.wfa_left
-                wfd_out = self.wfa_right
-            wmf = self.wj
+                wdf_in = self.waf_left
+                wdf_out = self.waf_right
+            wfm = self.wj
             bd = self.ba
         else:
             raise Exception('\'' + str(level) + '\' is not a valid level')
 
-        dat_out = self._predict(dat_in, map, wfd_in, wfd_out, wmf, bd)
+        dat_out = self._predict(dat_in, map, wdf_in, wdf_out, wfm, bd)
         return dat_out

@@ -7,7 +7,7 @@ from gated_autoencoder import *
 
 class GrammarCellsL3(GatedAutoencoder):
     """
-    3-layer Grammar Cells
+    3-layer grammar cells
     """
     def __init__(self, 
                     dimx, dimfacx, 
@@ -15,10 +15,9 @@ class GrammarCellsL3(GatedAutoencoder):
                     dima, dimfaca, 
                     dimj, 
                     seq_len, output_type='real', coststart=4, 
-                    corrupt_type="zeromask", corrupt_level=0.0, 
+                    vis_corrupt_type="zeromask", vis_corrupt_level=0.0, 
                     numpy_rng=None, theano_rng=None):
 
-        # random number generators
         if not numpy_rng:  
             self.numpy_rng = numpy.random.RandomState(1)
         else:
@@ -45,10 +44,10 @@ class GrammarCellsL3(GatedAutoencoder):
         self.output_type = output_type
         self.coststart = coststart
 
-        self.corrupt_type = corrupt_type
-        self.corrupt_level =\
-            theano.shared(value=numpy.array([corrupt_level]), 
-                                                name='corrupt_level')
+        self.vis_corrupt_type = vis_corrupt_type
+        self.vis_corrupt_level =\
+            theano.shared(value=numpy.array([vis_corrupt_level]), 
+                                                name='vis_corrupt_level')
 
         # trainable parameters
         ########################################################################
@@ -68,11 +67,9 @@ class GrammarCellsL3(GatedAutoencoder):
         self.bv = self.init_param((dimv), 0., 'r', 'bv')
         self.ba = self.init_param((dima), 0., 'r', 'ba')
         self.bj = self.init_param((dimj), 0., 'r', 'bj')
-
-        self.autonomy = self.init_param(1, 0.5, 'r', 'autonomy')
-        # self.autonomy = theano.shared(value=numpy.array([0.5]).\
-        #                 astype("float32"), name='autonomy') # TODO: init_param
-
+        # self.autonomy = self.init_param(1, 0.5, 'r', 'autonomy')
+        self.autonomy = theano.shared(value=numpy.array([0.5]).\
+                        astype("float32"), name='autonomy') # TODO: init_param
         self.params = [self.wfx_left, self.wfx_right, self.wv, 
                         self.wfv_left, self.wfv_right, self.wa, 
                         self.wfa_left, self.wfa_right, self.wj, 
@@ -96,11 +93,17 @@ class GrammarCellsL3(GatedAutoencoder):
 
         # extracting the input data
         for t in range(self.seq_len):
-            xs[t] = self.inputs[:, t*dimx:(t+1)*dimx]
+            if t < self.seq_len:
+                xs[t] = self.inputs[:, t*dimx:(t+1)*dimx]
+            else:
+                xs[t] = T.zeros((self._xs[0].shape[0], self.dimx)) 
 
-            if t >= 4:
-                xs[t] = self.corrupt(xs[t], self.corrupt_type, 
-                                        self.corrupt_level)
+            # if t>3:
+            #     self._xs[t] = self.corrupt(self._xs[t])
+            if self.vis_corrupt_type != None:
+                xs[t] = self.corrupt(xs[t], self.vis_corrupt_type, 
+                                        self.vis_corrupt_level)
+            # recons[t] = xs[t]
             
         # initial inference phase
         for t in range(4):
@@ -124,14 +127,17 @@ class GrammarCellsL3(GatedAutoencoder):
             recons[t]   = self.predict(recons[t-1], vels[t], level=1)
 
         preds = T.concatenate([pred for pred in recons], axis=1)
-
         cost = T.mean((preds[coststart:] - self.inputs[coststart:])**2)
         grads = T.grad(cost, self.params)
 
         self.cost = cost
         self.grads = grads
 
-        # functions
+        self.debug_xs1 = theano.function([self.inputs], xs[1])
+        self.debug_vels1 = theano.function([self.inputs], vels[1])
+        self.debug_accs4 = theano.function([self.inputs], accs[4])
+        self.debug_vels4 = theano.function([self.inputs], vels[4])
+        # interface functions
         self.f_preds = theano.function([self.inputs], preds)
         self.f_cost = theano.function([self.inputs], cost)
         self.f_grads = theano.function([self.inputs], grads)

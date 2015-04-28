@@ -7,7 +7,7 @@ from gated_autoencoder import *
 
 class GrammarCellsL3(GatedAutoencoder):
     """
-    3-layer Grammar Cells
+    3-layer Grammar Cells Without Autonomy
     """
     def __init__(self, 
                     dimx, dimfacx, 
