@@ -6,7 +6,7 @@ from params import Params
 
 class GatedAutoencoder(Params):
     """
-    Asymmetric Gated Autoencoder
+    Gated Autoencoder
     """
     def __init__(self, 
                     dimdat, dimfac, dimmap,
@@ -17,13 +17,10 @@ class GatedAutoencoder(Params):
                     name=''):
         """
         name : string type name of the model
-        # mode : if 'reconstruct' then train for two-way reconstruction
-        #         if 'up' then infer mapping unit using two input data
-        #         # if 'left' then predict left using right and mapping unit
-        #         if 'right' then predict right using left and mapping unit
         """
         self.name = name
-
+        
+        # random number generators
         if not numpy_rng:  
             self.numpy_rng = numpy.random.RandomState(1) 
         else:
@@ -69,8 +66,8 @@ class GatedAutoencoder(Params):
             self.wfd_right = wfd_right
         #
         if wmf == None:
-            self.wmf = self.init_param(size=(dimmap, dimfac), scale=.001,
-                                        mode='n', name=self.name+':wmf')
+            self.wmf = self.init_param(size=(dimmap, dimfac), scale=[-3., -2.],
+                                        mode='lu', name=self.name+':wmf')
         else:
             self.wmf = wmf
         #
@@ -98,7 +95,6 @@ class GatedAutoencoder(Params):
         fac_right :
         map ::
         """
-        
         self.inputs = T.matrix(name=self.name+':inputs') 
         inputs_left = self.inputs[:, :dimdat] 
         inputs_right = self.inputs[:, dimdat:] 
@@ -113,27 +109,19 @@ class GatedAutoencoder(Params):
         fac_left = T.dot(dat_left, self.wfd_left.T)
         fac_right = T.dot(dat_right, self.wfd_right.T)
         map = self.fac_infer(fac_left, fac_right)
-        # map = T.nnet.sigmoid(T.dot(fac_left * fac_right, self.wmf.T)+self.bm)
         fac_map = T.dot(map, self.wmf)
         recons_left = self.fac_predict(fac_right, fac_map, 'l')
         recons_right = self.fac_predict(fac_left, fac_map, 'r')
-        # recons_left = T.dot(fac_left * fac_map, self.wfd_left) + self.bd
-        # recons_right = T.dot(fac_left * fac_map, self.wfd_right) + self.bd
         recons = T.concatenate((recons_left, recons_right), axis=1)
 
-        # cost = T.mean((recons_left - self.inputs[:, :dimdat])**2 +\
-        #                     (recons_right - self.inputs[:, dimdat:])**2)
         cost = T.mean(0.5*((inputs_left-recons_left)**2)
                                  +0.5*((inputs_right-recons_right)**2))
-        # costpercase = T.sum(0.5*((inputs_left-recons_left)**2)
-        #                          +0.5*((inputs_right-recons_right)**2), axis=1)
-        # cost = T.mean(costpercase) 
-
-
         grads = T.grad(cost, self.params) 
-        self._cost = cost 
-        self._grads = grads 
+        self.cost = cost 
+        self.grads = grads 
+
         # functions
+        ########################################################################
         self.f_map = theano.function([self.inputs], map)
         self.f_recons = theano.function([self.inputs], recons)
         self.f_cost = theano.function([self.inputs], cost)

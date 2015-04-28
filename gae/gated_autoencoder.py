@@ -6,7 +6,7 @@ from params import Params
 
 class GatedAutoencoder(Params):
     """
-    Asymmetric Gated Autoencoder
+    Gated Autoencoder
     """
     def __init__(self, 
                     dimdat, dimfac, dimmap,
@@ -17,13 +17,10 @@ class GatedAutoencoder(Params):
                     name=''):
         """
         name : string type name of the model
-        # mode : if 'reconstruct' then train for two-way reconstruction
-        #         if 'up' then infer mapping unit using two input data
-        #         # if 'left' then predict left using right and mapping unit
-        #         if 'right' then predict right using left and mapping unit
         """
         self.name = name
-
+        
+        # random number generators
         if not numpy_rng:  
             self.numpy_rng = numpy.random.RandomState(1) 
         else:
@@ -98,7 +95,6 @@ class GatedAutoencoder(Params):
         fac_right :
         map ::
         """
-        
         self.inputs = T.matrix(name=self.name+':inputs') 
         inputs_left = self.inputs[:, :dimdat] 
         inputs_right = self.inputs[:, dimdat:] 
@@ -117,14 +113,15 @@ class GatedAutoencoder(Params):
         recons_left = self.fac_predict(fac_right, fac_map, 'l')
         recons_right = self.fac_predict(fac_left, fac_map, 'r')
         recons = T.concatenate((recons_left, recons_right), axis=1)
+
         cost = T.mean(0.5*((inputs_left-recons_left)**2)
                                  +0.5*((inputs_right-recons_right)**2))
-
-
         grads = T.grad(cost, self.params) 
         self.cost = cost 
         self.grads = grads 
+
         # functions
+        ########################################################################
         self.f_map = theano.function([self.inputs], map)
         self.f_recons = theano.function([self.inputs], recons)
         self.f_cost = theano.function([self.inputs], cost)

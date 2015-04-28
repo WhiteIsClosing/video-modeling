@@ -15,7 +15,7 @@ class GrammarCellsL3(GatedAutoencoder):
                     dima, dimfaca, 
                     dimj, 
                     seq_len, output_type='real', coststart=4, 
-                    vis_corrupt_type="zeromask", vis_corrupt_level=0.0, 
+                    corrupt_type="zeromask", corrupt_level=0.0, 
                     numpy_rng=None, theano_rng=None):
 
         # random number generators
@@ -45,10 +45,10 @@ class GrammarCellsL3(GatedAutoencoder):
         self.output_type = output_type
         self.coststart = coststart
 
-        self.vis_corrupt_type = vis_corrupt_type
-        self.vis_corrupt_level =\
-            theano.shared(value=numpy.array([vis_corrupt_level]), 
-                                                name='vis_corrupt_level')
+        self.corrupt_type = corrupt_type
+        self.corrupt_level =\
+            theano.shared(value=numpy.array([corrupt_level]), 
+                                                name='corrupt_level')
 
         # trainable parameters
         ########################################################################
@@ -99,8 +99,8 @@ class GrammarCellsL3(GatedAutoencoder):
             xs[t] = self.inputs[:, t*dimx:(t+1)*dimx]
 
             if t >= 4:
-                xs[t] = self.corrupt(xs[t], self.vis_corrupt_type, 
-                                        self.vis_corrupt_level)
+                xs[t] = self.corrupt(xs[t], self.corrupt_type, 
+                                        self.corrupt_level)
             
         # initial inference phase
         for t in range(4):
