@@ -3,7 +3,7 @@
 
 ## INPUT PATH
 num_balls     = 1
-project_path  = '/deep/u/kuanfang/optical-flow-pred/'
+project_path  = '/deep/u/kuanfang/video-modeling/'
 data_path     = project_path + 'data/bouncing_balls/'+ str(num_balls) + 'balls/' 
 gc_path       = project_path + 'data/grammar_cells/' + str(num_balls) + 'balls/'
 

@@ -1,3 +1,3 @@
 #!/bin/bash
-bash /deep/u/kuanfang/optical-flow-pred/scripts/clean.sh
+bash /deep/u/kuanfang/video-modeling/scripts/clean.sh
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Scripts for training the model. 
-source /deep/u/kuanfang/optical-flow-pred/scripts/config.sh
+source /deep/u/kuanfang/video-modeling/scripts/config.sh
 
 if [ -d $backup ] 
 then

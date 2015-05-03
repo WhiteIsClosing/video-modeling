@@ -1,3 +1,3 @@
 #!/bin/bash
-bash /deep/u/kuanfang/optical-flow-pred/scripts/visualize_rnn.sh
+bash /deep/u/kuanfang/video-modeling/scripts/visualize_rnn.sh
 

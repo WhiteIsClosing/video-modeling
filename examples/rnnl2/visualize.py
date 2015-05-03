@@ -15,11 +15,21 @@ from utils.log import *
 
 print 'loading data ...'
 
-features_train_numpy, features_test_numpy = \
-  loadFrames(data_path, image_shape, numframes_train, numframes_test, seq_len)
-ofx_train, ofy_train, ofx_test,  ofy_test = \
-  loadOFs(data_path, image_shape, numframes_train, numframes_test, seq_len)
+# LOAD DATA
+features_train_numpy = \
+  loadFrames(data_path + 'train/', image_shape, numframes_train, seq_len)
+ofx_train, ofy_train = \
+  loadOFs(data_path + 'train/', image_shape, numframes_train, seq_len)
+labels_train = numpy.concatenate((ofx_train, ofy_train), axis = 1)
 
+features_test_numpy = \
+  loadFrames(data_path + 'test/', image_shape, numframes_test, seq_len)
+ofx_test, ofy_test = \
+  loadOFs(data_path + 'test/', image_shape, numframes_test, seq_len)
+labels_test = numpy.concatenate((ofx_test, ofy_test), axis = 1)
+
+
+# LOAD PREDICTION
 preds_train = numpy.load(pred_path + 'preds_train.npy')
 ofx_pred_train = preds_train[:, :frame_dim]
 ofy_pred_train = preds_train[:, frame_dim:]
@@ -33,6 +43,7 @@ frames_test = features_test_numpy
 print '... done'
 
 
+#
 print 'ploting images ...'
 
 path_train = vis_path + 'train/'
