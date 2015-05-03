@@ -1,5 +1,4 @@
-# Optical Flow prediction 
-This project is used to predict optical flow using recurrent neural networks (RNNs) and other statistical models. 
+# Video Modeling
 
 Currently, we provide the following models:
 * rnnl1: 1-hidden-layer RNN
