@@ -221,12 +221,12 @@ def scale_gen(imgin, num_seq, seq_len, patch_size,
 
     for i in range(num_seq):
 
-        # compute the scaling factor for each time step
-        k = numpy.random.uniform(rgk0[0], rgk0[1])
-        a = numpy.random.uniform(rga0[0], rga0[1])
-        
         valid_scale = False
         while not valid_scale:
+            # compute the scaling factor for each time step
+            k = numpy.random.uniform(rgk0[0], rgk0[1])
+            a = numpy.random.uniform(rga0[0], rga0[1])
+
             scale = 1
             minscale = float('infinity')
 
@@ -252,7 +252,15 @@ def scale_gen(imgin, num_seq, seq_len, patch_size,
             size = int(patch_size * scale)
             patch_resize = misc.imresize(patch_sample, (size, size))
             images[t] = patch_resize[(size-patch_size)/2:(size+patch_size)/2, 
-                                    (size-patch_size)/2:(size+patch_size)/2]
+                                        (size-patch_size)/2:(size+patch_size)/2]
+            # try:
+            # except:
+            #     print '+++'
+            #     print size
+            #     print scale
+            #     print k
+            #     print scales
+            #     print minscale
 
         seqs[i, :] = numpy.concatenate([image.flatten() for image in images], 
                                         axis=1)
