@@ -19,7 +19,7 @@ from utils.load import *
 from utils.plot import *
 from utils.log import *
 
-from gae.fgae import *
+from gae.gated_autoencoder import *
 
 print 'loading data ...'
 
@@ -38,10 +38,9 @@ pred_frames_train = numpy.load(pred_path + 'recons.npy')
 print '... done'
 
 
-model = FGAE(dimdat=dimdat,
-                dimfac=dimfac,
-                dimmap=dimmap,
-                mode='reconstruct')
+model = GatedAutoencoder(dimdat=dimdat,
+                            dimfac=dimfac,
+                            dimmap=dimmap)
 model.load(models_path + 'model.npy')
 
 # PLOT FILTER PAIRS

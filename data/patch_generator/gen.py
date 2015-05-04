@@ -10,12 +10,12 @@ sys.path.insert(0, project_path)
 from utils.plot import *
 
 # hyper paramters
-num_seq = 5000
+num_seq = 10000
 seq_len = 10
 patch_size = 16 
 out_path = '../patch_data/'
 
-# load the IMAGES_CELL.mat
+# load the IMAGES_cell.mat
 images_cell = sio.loadmat('IMAGES_cell.mat')['IMAGES']
 images = [None] * len(images_cell)
 i = 0
