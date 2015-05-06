@@ -14,7 +14,7 @@ sys.path.insert(0, project_path)
 from utils.load import *
 from utils.log import *
 
-from gae.grammar_cells_l3_autonomy import *
+from gae.grammar_cells_l3 import *
 from gae.solver import *
 
 # seed = 42

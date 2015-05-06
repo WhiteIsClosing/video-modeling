@@ -1,3 +1,3 @@
 #!/bin/bash
-bash /deep/u/kuanfang/optical-flow-pred/scripts/train_grammar_cells.sh
+bash /deep/u/kuanfang/video-modeling/scripts/train_grammar_cells.sh
 
